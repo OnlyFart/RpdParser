@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspose.Words" Version="20.4.0" />
+      <PackageReference Include="GemBox.Pdf" Version="13.0.1100" />
+      <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="tessdata\rus.traineddata">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tessdata\pdf.ttf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tessdata\osd.traineddata">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tessdata\eng.user-words">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tessdata\eng.user-patterns">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tessdata\eng.traineddata">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Extractors.Types\Class1.cs">
+        <Link>Extractor.Types\Class1.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Extractors.Types\Extractors.Types.csproj" />
+    </ItemGroup>
+
+</Project>

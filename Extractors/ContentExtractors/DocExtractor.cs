@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using Aspose.Words;
+using Aspose.Words.Drawing;
+using Extractors.Types;
+
+namespace Extractors.ContentExtractors {
+    public class DocExtractorBase : ExtractorBase {
+        /// <summary>
+        /// Поддерживаемый форматы файлов для обработки
+        /// Библиотека поддерживает и больше. Добавил пока только эти
+        /// В случае необходимости обработки новых форматов просто докидывайте сюда
+        /// В теории должно работать. Сюда можно добавить еще и .pdf и это будет работать
+        /// что позволит избавиться от PdfExtractor, но почему то эта библиотека очень
+        /// медленно обрабатывает PDF, т.ч. пусть этим занимается PdfExtractor
+        /// </summary>
+        private static readonly Dictionary<string, LoadFormat> _supportedExtension = new Dictionary<string, LoadFormat> {
+            {".docx", LoadFormat.Docx},
+            {".doc", LoadFormat.Doc},
+            {".rtf", LoadFormat.Rtf},
+            {".odt", LoadFormat.Odt},
+        };
+        
+        /// <summary>
+        /// Проверка на поддержку расширения данным экстрактором
+        /// </summary>
+        public override bool IsSupport(string path) {
+            return !string.IsNullOrWhiteSpace(path) && _supportedExtension.Any(extension => path.EndsWith(extension.Key, StringComparison.InvariantCultureIgnoreCase));
+        }
+        
+        /// <summary>
+        /// Определение типа файла по его расширению
+        /// </summary>
+        private static LoadFormat GetLoadFormat(string path) {
+            foreach (var extension in _supportedExtension) {
+                if (path.EndsWith(extension.Key, StringComparison.InvariantCultureIgnoreCase)) {
+                    return extension.Value;
+                }
+            }
+            
+            throw new ArgumentException($"Unsupported file type {path}");
+        }
+
+        public override Extract Extract(byte[] bytes, string extension) {
+            var content = new StringBuilder();
+            var result = new Extract();
+            
+            try {
+                using (var ms = new MemoryStream(bytes)) {
+                    var doc = new Document(ms, new LoadOptions(GetLoadFormat(extension), null, null));
+                    var paragraphs = doc.GetChildNodes(NodeType.Paragraph, true);
+
+                    //NOTE: Не всегда получает только первую страницу. Довольно часто цепляет еще несколько
+                    foreach (var node in paragraphs) {
+                        var text = node.GetText();
+
+                        if (text.Contains(ControlChar.PageBreak)) {
+                            var index = text.IndexOf(ControlChar.PageBreak, StringComparison.Ordinal);
+                            content.Append(text.Substring(0, index + 1));
+                            break;
+                        }
+
+                        content.Append(text);
+                    }
+
+                    if (content.Length < 100) {
+                        foreach (var node in doc.GetChildNodes(NodeType.Shape, true)) {
+                            var shape = (Shape) node;
+                            if (!shape.HasImage) {
+                                continue;
+                            }
+
+                            var extractTextImage = ExtractTextImage(shape.ImageData.ImageBytes);
+                            if (string.IsNullOrWhiteSpace(extractTextImage)) {
+                                continue;
+                            }
+
+                            content.Append(extractTextImage);
+                            result.HasImageContent = true;
+                        }
+                    }
+                }
+            } catch {
+            }
+
+            result.Content = content.ToString();
+            return result;
+        }
+    }
+}

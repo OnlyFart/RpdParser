@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extractors", "Extractors\Extractors.csproj", "{3B9CB3EE-B743-49E5-8D13-89B6F544FA51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser.Service", "Parser.Service\Parser.Service.csproj", "{6C725926-AD8D-42E8-9254-998C9468C94A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{EF4FDA7B-4B4F-432B-B6F7-FE347570754C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8A66A26F-F128-413D-B67B-13C7F8F07963}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractorsTests", "ExtractorsTests\ExtractorsTests.csproj", "{C317813A-4909-4981-9803-092830C20962}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Parser.Service", "Parser.Service", "{A4B19B65-6BB4-43A0-8B34-6125F35CDF88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser.Service.Contracts", "Parser.Service.Contracts\Parser.Service.Contracts.csproj", "{D2499758-0544-416C-9E6F-24F5BD7C6F6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extractor", "Extractor", "{D220AAB2-64D6-45E5-A007-0CA8019F2CBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extractors.Types", "Extractors.Types\Extractors.Types.csproj", "{95719208-F198-4633-AB34-E2EB5AFDD5B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B9CB3EE-B743-49E5-8D13-89B6F544FA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B9CB3EE-B743-49E5-8D13-89B6F544FA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B9CB3EE-B743-49E5-8D13-89B6F544FA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B9CB3EE-B743-49E5-8D13-89B6F544FA51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C725926-AD8D-42E8-9254-998C9468C94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C725926-AD8D-42E8-9254-998C9468C94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C725926-AD8D-42E8-9254-998C9468C94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C725926-AD8D-42E8-9254-998C9468C94A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF4FDA7B-4B4F-432B-B6F7-FE347570754C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF4FDA7B-4B4F-432B-B6F7-FE347570754C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF4FDA7B-4B4F-432B-B6F7-FE347570754C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF4FDA7B-4B4F-432B-B6F7-FE347570754C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C317813A-4909-4981-9803-092830C20962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C317813A-4909-4981-9803-092830C20962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C317813A-4909-4981-9803-092830C20962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C317813A-4909-4981-9803-092830C20962}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2499758-0544-416C-9E6F-24F5BD7C6F6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2499758-0544-416C-9E6F-24F5BD7C6F6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2499758-0544-416C-9E6F-24F5BD7C6F6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2499758-0544-416C-9E6F-24F5BD7C6F6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95719208-F198-4633-AB34-E2EB5AFDD5B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95719208-F198-4633-AB34-E2EB5AFDD5B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95719208-F198-4633-AB34-E2EB5AFDD5B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95719208-F198-4633-AB34-E2EB5AFDD5B7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C317813A-4909-4981-9803-092830C20962} = {8A66A26F-F128-413D-B67B-13C7F8F07963}
+		{6C725926-AD8D-42E8-9254-998C9468C94A} = {A4B19B65-6BB4-43A0-8B34-6125F35CDF88}
+		{D2499758-0544-416C-9E6F-24F5BD7C6F6F} = {A4B19B65-6BB4-43A0-8B34-6125F35CDF88}
+		{3B9CB3EE-B743-49E5-8D13-89B6F544FA51} = {D220AAB2-64D6-45E5-A007-0CA8019F2CBF}
+		{95719208-F198-4633-AB34-E2EB5AFDD5B7} = {D220AAB2-64D6-45E5-A007-0CA8019F2CBF}
+	EndGlobalSection
+EndGlobal
