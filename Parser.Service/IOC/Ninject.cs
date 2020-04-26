@@ -10,7 +10,6 @@ using JRPC.Service;
 using JRPC.Service.Host.Kestrel;
 using JRPC.Service.Registry;
 using Ninject.Modules;
-using PageGetter.Contracts;
 using Yandex.Xml;
 using Yandex.Xml.Contracts;
 

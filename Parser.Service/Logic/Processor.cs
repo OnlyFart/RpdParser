@@ -11,7 +11,6 @@ using Extractors.ContentExtractors;
 using Extractors.DataExtractors;
 using Extractors.Types;
 using FileGetter;
-using PageGetter.Contracts;
 using Yandex.Xml.Contracts;
 
 namespace Parser.Service.Logic {
