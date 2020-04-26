@@ -13,7 +13,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Extractors\Extractors.csproj" />
+      <ProjectReference Include="..\FileGetter\FileGetter.csproj" />
       <ProjectReference Include="..\Parser.Service.Contracts\Parser.Service.Contracts.csproj" />
+      <ProjectReference Include="..\Yandex.Xml.Contracts\Yandex.Xml.Contracts.csproj" />
+      <ProjectReference Include="..\Yandex.Xml\Yandex.Xml.csproj" />
     </ItemGroup>
 
 </Project>

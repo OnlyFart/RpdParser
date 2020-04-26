@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 using GemBox.Pdf;
@@ -33,13 +34,12 @@ namespace Extractors.ContentExtractors {
             try {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var document = PdfDocument.Load(ms)) {
-                        if (document.Pages.Count == 0) {
+                        var page = document.Pages.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.Content.ToString()));
+                        if (page == null) {
                             return result;
                         }
-
-                        foreach (var contentElement in document.Pages[0].Content.Elements.All().Where(t => t.ElementType == PdfContentElementType.Text)) {
-                            text.Append((PdfTextContent) contentElement);
-                        }
+                        
+                        text.Append(page.Content);
                     }
                 }
             } catch { }
@@ -48,7 +48,7 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
-        public override Extract ExtractImageText(byte[] bytes, string extension) {
+        public override async Task<Extract> ExtractImageText(byte[] bytes, string extension) {
             var text = new StringBuilder();
             var result = new Extract();
 
@@ -60,7 +60,7 @@ namespace Extractors.ContentExtractors {
                         }
 
                         foreach (var contentElement in document.Pages[0].Content.Elements.All().Where(t => t.ElementType == PdfContentElementType.Image)) {
-                            var imageContent = GetImageContent((PdfImageContent) contentElement);
+                            var imageContent = await GetImageContent((PdfImageContent) contentElement);
                             if (!string.IsNullOrWhiteSpace(imageContent)) {
                                 text.Append(imageContent);
                                 result.HasImageContent = true;
@@ -74,13 +74,13 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
-        private string GetImageContent(PdfImageContent imageContent) {
+        private async Task<string> GetImageContent(PdfImageContent imageContent) {
             var text = string.Empty;
 
             try {
                 using (var ms = new MemoryStream()) {
                     imageContent.Save(ms, new ImageSaveOptions(ImageSaveFormat.Jpeg));
-                    text = _imageExtractor.ExtractTextImage(ms.ToArray());
+                    text = await _imageExtractor.ExtractTextImage(ms.ToArray());
                 }
             } catch {
                 

@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yandex.Xml.Contracts\Yandex.Xml.Contracts.csproj" />
+      <ProjectReference Include="..\File.Contracts\File.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

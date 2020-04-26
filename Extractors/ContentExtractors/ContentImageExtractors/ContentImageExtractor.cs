@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Extractors.ContentExtractors.ContentImageExtractors {
     public class ContentImageExtractor : IContentImageExtractor {
@@ -9,17 +10,17 @@ namespace Extractors.ContentExtractors.ContentImageExtractors {
         /// </summary>
         /// <param name="image">Картинка в виде массива байт</param>
         /// <returns></returns>
-        public string ExtractTextImage(byte[] image) {
-            return ParseText("./tesseract", image, "rus");
+        public async Task<string> ExtractTextImage(byte[] image) {
+            return await ParseText("./tesseract", image, "rus");
         }
 
-        private static string ParseText(string tesseractPath, byte[] imageFile, params string[] lang) {
+        private static async Task<string> ParseText(string tesseractPath, byte[] imageFile, params string[] lang) {
             var result = string.Empty;
             var tempOutputFile = Path.GetTempPath() + Guid.NewGuid();
             var tempImageFile = Path.GetTempFileName();
 
             try {
-                File.WriteAllBytes(tempImageFile, imageFile);
+                await File.WriteAllBytesAsync(tempImageFile, imageFile);
 
                 var info = new ProcessStartInfo {
                     WorkingDirectory = tesseractPath,
@@ -37,7 +38,7 @@ namespace Extractors.ContentExtractors.ContentImageExtractors {
                 using (var process = Process.Start(info)) {
                     process.WaitForExit();
                     if (process.ExitCode == 0) {
-                        result = File.ReadAllText(tempOutputFile + ".txt");
+                        result = await File.ReadAllTextAsync(tempOutputFile + ".txt");
                     } else {
                         throw new Exception("Error. Tesseract stopped with an error code = " + process.ExitCode);
                     }

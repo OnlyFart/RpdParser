@@ -2,10 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
+        <RootNamespace>PageGetter.Contracts</RootNamespace>
     </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Yandex.Xml.Contracts\Yandex.Xml.Contracts.csproj" />
-    </ItemGroup>
 
 </Project>

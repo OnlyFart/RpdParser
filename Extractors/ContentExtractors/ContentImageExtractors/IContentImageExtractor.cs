@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
+
 namespace Extractors.ContentExtractors.ContentImageExtractors {
     public interface IContentImageExtractor {
-        string ExtractTextImage(byte[] image);
+        Task<string> ExtractTextImage(byte[] image);
     }
 }

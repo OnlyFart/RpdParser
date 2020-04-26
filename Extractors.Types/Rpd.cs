@@ -8,9 +8,9 @@ namespace Extractors.Types {
         public string FilePath;
         
         /// <summary>
-        /// Имя файла
+        /// Путь к файлк на сайте
         /// </summary>
-        public string Name;
+        public string FileUrl;
         
         /// <summary>
         /// Идентификатор файла
@@ -25,6 +25,11 @@ namespace Extractors.Types {
         /// <summary>
         /// Валидный ли это документ
         /// </summary>
-        public bool IsValid = true;
+        public bool IsValid => string.IsNullOrWhiteSpace(ErrorMessage);
+        
+        /// <summary>
+        /// Сообщение об ошибке, еслм не смогли обработать файл
+        /// </summary>
+        public string ErrorMessage;
     }
 }

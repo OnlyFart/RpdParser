@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Aspose.Words;
 using Aspose.Words.Drawing;
 using Extractors.ContentExtractors.ContentImageExtractors;
@@ -76,7 +77,7 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
-        public override Extract ExtractImageText(byte[] bytes, string extension) {
+        public override async Task<Extract> ExtractImageText(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new Extract();
 
@@ -90,7 +91,7 @@ namespace Extractors.ContentExtractors {
                             continue;
                         }
 
-                        var extractTextImage = _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
+                        var extractTextImage = await _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
                         if (string.IsNullOrWhiteSpace(extractTextImage)) {
                             continue;
                         }

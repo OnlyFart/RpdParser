@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 
@@ -30,6 +31,6 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public abstract Extract ExtractImageText(byte[] bytes, string extension);
+        public abstract Task<Extract> ExtractImageText(byte[] bytes, string extension);
     }
 }
