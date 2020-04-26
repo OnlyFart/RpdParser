@@ -1,8 +1,14 @@
+using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
-using Tesseract;
 
 namespace Extractors.ContentExtractors {
     public abstract class ExtractorBase {
+        protected readonly IContentImageExtractor _imageExtractor;
+
+        protected ExtractorBase (IContentImageExtractor imageExtractor) {
+            _imageExtractor = imageExtractor;
+        }
+        
         /// <summary>
         /// Проверка на поддержку файла данным экстрактором
         /// </summary>
@@ -16,27 +22,14 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public abstract Extract Extract(byte[] bytes, string extension);
+        public abstract Extract ExtractText(byte[] bytes, string extension);
         
         /// <summary>
-        /// Извлечение текста из картинки
+        /// Извлечение текста из картинок в документе
         /// </summary>
-        /// <param name="image">Картинка в виде массива байт</param>
+        /// <param name="bytes">Файл</param>
+        /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        protected static string ExtractTextImage(byte[] image) {
-            var result = string.Empty;
-
-            try {
-                using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default)) {
-                    using (var img = Pix.LoadFromMemory(image)) {
-                        using (var process = engine.Process(img)) {
-                            result = process.GetText();
-                        }
-                    }
-                }
-            } catch { }
-
-            return result;
-        }
+        public abstract Extract ExtractImageText(byte[] bytes, string extension);
     }
 }

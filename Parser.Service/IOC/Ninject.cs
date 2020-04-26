@@ -1,5 +1,6 @@
 using Consul;
 using Extractors.ContentExtractors;
+using Extractors.ContentExtractors.ContentImageExtractors;
 using GemBox.Pdf;
 using JRPC.Registry.Ninject;
 using JRPC.Service;
@@ -22,8 +23,9 @@ namespace Parser.Service.IOC {
             Bind<IModulesRegistry>().To<NinjectModulesRegistry>();
             Bind<IJrpcServerHost>().To<KestrelJRpcServerHost>();
             Bind<IConsulClient>().To<ConsulClient>();
-            Bind<ExtractorBase>().To<PdfExtractorBase>();
-            Bind<ExtractorBase>().To<DocExtractorBase>();
+            Bind<IContentImageExtractor>().To<ContentImageExtractor>().InSingletonScope();
+            Bind<ExtractorBase>().To<PdfExtractor>().InSingletonScope();
+            Bind<ExtractorBase>().To<DocExtractor>().InSingletonScope();
         }
     }
 }

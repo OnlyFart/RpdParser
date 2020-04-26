@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,52 +19,49 @@ namespace Parser.Service.Logic {
             _extractors = extractors;
             _rpdContentExtractor = rpdContentExtractor;
         }
-        
+
         public Rpd ProcessFile(string path) {
             var bytes = File.ReadAllBytes(path);
             var rpd = ProcessFile(bytes, path);
-            
+
             rpd.FilePath = path;
-            
+
             return rpd;
         }
-        
+
         public Rpd ProcessFile(RpdFile file) {
             var rpd = ProcessFile(file.Bytes, file.Extension);
-            
+
             rpd.Id = file.Id;
             rpd.Name = file.Name;
-            
+
             return rpd;
         }
 
         public IEnumerable<Rpd> Process(IEnumerable<string> paths) {
             var queue = new ConcurrentQueue<Rpd>();
-            Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = 50}, path => {
+            var sw = Stopwatch.StartNew();
+            var processed = 0;
+            Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = 10}, path => {
                 var rpd = ProcessFile(path);
-                
-                if (rpd.RpdContent.Codes.Count == 0) {
-                    Console.WriteLine("FAIL " + path);
-                }
-						
-                Console.WriteLine("SUCCESS " + path + " " + string.Join(", ", rpd.RpdContent.Codes.Distinct()));
+
+                ++processed;
+                var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
+                var speed = processed / seconds;
+                Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+                Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {path} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
+
                 queue.Enqueue(rpd);
             });
 
+            Console.WriteLine(sw.ElapsedMilliseconds / 1000 / 60);
             return queue.ToList();
         }
-        
+
         public IEnumerable<Rpd> Process(IEnumerable<RpdFile> files) {
             var queue = new ConcurrentQueue<Rpd>();
-            Parallel.ForEach(files, new ParallelOptions {MaxDegreeOfParallelism = 50}, file => {
+            Parallel.ForEach(files, new ParallelOptions {MaxDegreeOfParallelism = 10}, file => {
                 var rpd = ProcessFile(file);
-
-                if (rpd.RpdContent.Codes.Count == 0) {
-                    Console.WriteLine("FAIL " + rpd.Name);
-                }
-						
-                Console.WriteLine("SUCCESS " + rpd.Name + " " + string.Join(", ", rpd.RpdContent.Codes.Distinct()));
-                
                 queue.Enqueue(rpd);
             });
 
@@ -74,11 +72,18 @@ namespace Parser.Service.Logic {
             var result = new Rpd();
 
             foreach (var extractor in _extractors.Where(t => t.IsSupport(extension))) {
-                var extract = extractor.Extract(file, extension);
+                var extract = extractor.ExtractText(file, extension);
                 
                 result.RpdContent = _rpdContentExtractor.Extract(extract.Content);
-                result.HasImageContent = extract.HasImageContent;
+                if (result.RpdContent.IsRpd) {
+                    return result;
+                }
                 
+                extract = extractor.ExtractImageText(file, extension);
+                    
+                result.RpdContent = _rpdContentExtractor.Extract(extract.Content);
+                result.HasImageContent = extract.HasImageContent;
+
                 return result;
             }
 

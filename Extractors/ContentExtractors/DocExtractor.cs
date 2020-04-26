@@ -5,10 +5,14 @@ using System.Linq;
 using System.Text;
 using Aspose.Words;
 using Aspose.Words.Drawing;
+using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 
 namespace Extractors.ContentExtractors {
-    public class DocExtractorBase : ExtractorBase {
+    public class DocExtractor : ExtractorBase {
+
+        public DocExtractor(IContentImageExtractor imageExtractor) : base(imageExtractor) { }
+
         /// <summary>
         /// Поддерживаемый форматы файлов для обработки
         /// Библиотека поддерживает и больше. Добавил пока только эти
@@ -23,14 +27,14 @@ namespace Extractors.ContentExtractors {
             {".rtf", LoadFormat.Rtf},
             {".odt", LoadFormat.Odt},
         };
-        
+
         /// <summary>
         /// Проверка на поддержку расширения данным экстрактором
         /// </summary>
         public override bool IsSupport(string path) {
             return !string.IsNullOrWhiteSpace(path) && _supportedExtension.Any(extension => path.EndsWith(extension.Key, StringComparison.InvariantCultureIgnoreCase));
         }
-        
+
         /// <summary>
         /// Определение типа файла по его расширению
         /// </summary>
@@ -40,14 +44,14 @@ namespace Extractors.ContentExtractors {
                     return extension.Value;
                 }
             }
-            
+
             throw new ArgumentException($"Unsupported file type {path}");
         }
 
-        public override Extract Extract(byte[] bytes, string extension) {
+        public override Extract ExtractText(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new Extract();
-            
+
             try {
                 using (var ms = new MemoryStream(bytes)) {
                     var doc = new Document(ms, new LoadOptions(GetLoadFormat(extension), null, null));
@@ -65,26 +69,37 @@ namespace Extractors.ContentExtractors {
 
                         content.Append(text);
                     }
+                }
+            } catch { }
 
-                    if (content.Length < 100) {
-                        foreach (var node in doc.GetChildNodes(NodeType.Shape, true)) {
-                            var shape = (Shape) node;
-                            if (!shape.HasImage) {
-                                continue;
-                            }
+            result.Content = content.ToString();
+            return result;
+        }
 
-                            var extractTextImage = ExtractTextImage(shape.ImageData.ImageBytes);
-                            if (string.IsNullOrWhiteSpace(extractTextImage)) {
-                                continue;
-                            }
+        public override Extract ExtractImageText(byte[] bytes, string extension) {
+            var content = new StringBuilder();
+            var result = new Extract();
 
-                            content.Append(extractTextImage);
-                            result.HasImageContent = true;
+            try {
+                using (var ms = new MemoryStream(bytes)) {
+                    var doc = new Document(ms, new LoadOptions(GetLoadFormat(extension), null, null));
+
+                    foreach (var node in doc.GetChildNodes(NodeType.Shape, true)) {
+                        var shape = (Shape) node;
+                        if (!shape.HasImage || shape.ImageData.ImageBytes.Length == 8818) {
+                            continue;
                         }
+
+                        var extractTextImage = _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
+                        if (string.IsNullOrWhiteSpace(extractTextImage)) {
+                            continue;
+                        }
+
+                        content.Append(extractTextImage);
+                        result.HasImageContent = true;
                     }
                 }
-            } catch {
-            }
+            } catch { }
 
             result.Content = content.ToString();
             return result;

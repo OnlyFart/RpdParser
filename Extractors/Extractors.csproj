@@ -7,26 +7,139 @@
     <ItemGroup>
       <PackageReference Include="Aspose.Words" Version="20.4.0" />
       <PackageReference Include="GemBox.Pdf" Version="13.0.1100" />
-      <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="tessdata\rus.traineddata">
+      <None Update="tesseract\tessdata\rus.traineddata">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="tessdata\pdf.ttf">
+      <None Update="tesseract\ambiguous_words.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="tessdata\osd.traineddata">
+      <None Update="tesseract\classifier_tester.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="tessdata\eng.user-words">
+      <None Update="tesseract\cntraining.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="tessdata\eng.user-patterns">
+      <None Update="tesseract\combine_lang_model.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="tessdata\eng.traineddata">
+      <None Update="tesseract\combine_tessdata.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\dawg2wordlist.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\lstmeval.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\lstmtraining.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\mftraining.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.behdad.harfbuzz-1.4.8.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.bzip2-1.0.6.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.cairographics.cairo-1.15.6.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.danbloomberg.leptonica-1.74.4.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.expat-2.2.3.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.freedesktop.fontconfig.fontconfig-2.12.1.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.freetype-2.8.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnome.glib.glib-2.50.3.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnome.glib.gobject-2.50.3.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnome.pango.pango-1.40.9.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnome.pango.pangocairo-1.40.9.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnome.pango.pangoft2-1.40.9.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnu.gettext.intl-0.19.8.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnu.iconv.libcharset-1.15.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.gnu.iconv.libiconv-1.15.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.jpeg-9.2.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.madler.zlib-1.2.11.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.openjpeg.openjp2-2.1.2.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.pcre.pcre-8.40.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.png-1.6.30.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.tiff-4.0.7.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.unicode.icu.common-59.1.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.unicode.icu.data-59.1.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.unicode.icu.i18n-59.1.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.webp-0.6.0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.weltling.winlibs.libffi-3.2.1.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\pvt.cppan.demo.xz_utils.lzma-5.2.3.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\set_unicharset_properties.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\shapeclustering.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\tesseract.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\tesseract400.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\text2image.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\unicharset_extractor.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="tesseract\wordlist2dawg.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

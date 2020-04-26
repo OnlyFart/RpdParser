@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Extractors.Types;
 using JRPC.Service;
 using Parser.Service.Contracts;
@@ -21,7 +20,7 @@ namespace Parser.Service.Service {
         /// <param name="pattern">Шаблон для поиска файлов. По умолчанию *</param>
         /// <returns></returns>
         public IEnumerable<Rpd> ProcessDirectoryByPath(string path, string pattern = "*") {
-            var paths = Directory.GetFiles(path, pattern, SearchOption.AllDirectories).ToList();
+            var paths = Directory.GetFiles(path, pattern, SearchOption.AllDirectories);
             return ProcessFilesByPath(paths);
         }
 
