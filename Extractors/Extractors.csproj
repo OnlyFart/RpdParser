@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Apitron.PDF.Kit" Version="2.0.29" />
       <PackageReference Include="Aspose.Words" Version="20.4.0" />
-      <PackageReference Include="GemBox.Pdf" Version="13.0.1100" />
     </ItemGroup>
 
     <ItemGroup>

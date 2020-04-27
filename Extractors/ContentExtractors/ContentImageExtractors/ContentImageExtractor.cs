@@ -34,7 +34,7 @@ namespace Extractors.ContentExtractors.ContentImageExtractors {
                                 tempOutputFile +
                                 " -l " + string.Join("+", lang)
                 };
-                
+
                 using (var process = Process.Start(info)) {
                     process.WaitForExit();
                     if (process.ExitCode == 0) {
@@ -43,6 +43,8 @@ namespace Extractors.ContentExtractors.ContentImageExtractors {
                         throw new Exception("Error. Tesseract stopped with an error code = " + process.ExitCode);
                     }
                 }
+            } catch {
+                
             } finally {
                 File.Delete(tempImageFile);
                 File.Delete(tempOutputFile + ".txt");
