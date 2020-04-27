@@ -1,36 +1,39 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
+using Yandex.Xml.Configs;
 using Yandex.Xml.Contracts;
 
 namespace Yandex.Xml {
     public class YandexXml : IYandexXml {
-        private readonly string _user;
-        private readonly string _key;
-
-        private const string REQUEST_PATTERN = "https://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D100.docs-in-group%3D1&page={3}";
+        private readonly YandexXmlConfig _config;
+        private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D100.docs-in-group%3D1&page={3}";
         private const int MAX_REQUEST_COUNT = 5;
         
-        public YandexXml(string user, string key) {
-            if (string.IsNullOrWhiteSpace(user)) {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(user));
+        public YandexXml(YandexXmlConfig config) {
+            if (config == null) {
+                throw new ArgumentNullException(nameof(config));
+            }
+            
+            if (string.IsNullOrWhiteSpace(config.User)) {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(config.User));
             }
 
-            if (string.IsNullOrWhiteSpace(key)) {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
+            if (string.IsNullOrWhiteSpace(config.Key)) {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(config.Key));
             }
 
-            _user = user;
-            _key = key;
+            _config = config;
         }
 
         public async Task<YandexXmlResponse> Get(string query, int needResult) {
             var result = new YandexXmlResponse();
             var page = 0;
             do {
-                var url = string.Format(REQUEST_PATTERN, _user, _key, HttpUtility.UrlEncode(query), page++);
+                var url = string.Format(REQUEST_PATTERN, _config.User, _config.Key, HttpUtility.UrlEncode(query), page++);
                 var response = await GetStringContent(url);
                 if (response == null) {
                     return result;
@@ -54,7 +57,16 @@ namespace Yandex.Xml {
         private async Task<string> GetStringContent(string url) {
             for (var i = 0; i < MAX_REQUEST_COUNT; i++) {
                 try {
-                    using (var client = new HttpClient()) {
+                    WebProxy proxy = null;
+                    if (!string.IsNullOrEmpty(_config.ProxyUrl) && _config.ProxyPort > 0) {
+                        proxy = new WebProxy(_config.ProxyUrl, _config.ProxyPort);
+                    }
+                    
+                    var httpClientHandler = new HttpClientHandler { Proxy = proxy };
+                    
+                    using (var client = new HttpClient(httpClientHandler)) {
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-ip-request", "94.77.112.44");
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-force-https", "true");
                         return await client.GetStringAsync(url);
                     }
                 } catch {
@@ -72,7 +84,7 @@ namespace Yandex.Xml {
             var result = new YandexXmlResponse();
             if (response != null) {
                 foreach (var node in response.Elements("found")) {
-                    if (result.Found == 0 && node.Name == "found" && node.Attribute("prioryty")?.Value == "all") {
+                    if (result.Found == 0 && node.Name == "found" && node.Attribute("priority")?.Value == "all") {
                         result.Found = long.Parse(node.Value);
                     }
                 }

@@ -8,9 +8,9 @@ using Parser.Service.Logic;
 
 namespace Parser.Service.Service {
     public class ParserService : JRpcModule, IParserService {
-        private readonly Processor _processor;
+        private readonly IProcessor _processor;
 
-        public ParserService(Processor processor) {
+        public ParserService(IProcessor processor) {
             _processor = processor;
         }
         
@@ -31,7 +31,7 @@ namespace Parser.Service.Service {
         /// <param name="path">Путь к файлу</param>
         /// <returns></returns>
         public async Task<Rpd> ProcessFileByPath(string path) {
-            return await _processor.ProcessFile(path);
+            return await _processor.ProcessFileByPath(path);
         }
         
         /// <summary>
