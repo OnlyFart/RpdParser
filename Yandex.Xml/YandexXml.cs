@@ -10,7 +10,7 @@ using Yandex.Xml.Contracts;
 namespace Yandex.Xml {
     public class YandexXml : IYandexXml {
         private readonly YandexXmlConfig _config;
-        private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D100.docs-in-group%3D1&page={3}";
+        private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
         private const int MAX_REQUEST_COUNT = 5;
         
         public YandexXml(YandexXmlConfig config) {
@@ -32,8 +32,9 @@ namespace Yandex.Xml {
         public async Task<YandexXmlResponse> Get(string query, int needResult) {
             var result = new YandexXmlResponse();
             var page = 0;
+            var docOnPage = 100;
             do {
-                var url = string.Format(REQUEST_PATTERN, _config.User, _config.Key, HttpUtility.UrlEncode(query), page++);
+                var url = string.Format(REQUEST_PATTERN, _config.User, _config.Key, HttpUtility.UrlEncode(query), docOnPage, page++);
                 var response = await GetStringContent(url);
                 if (response == null) {
                     return result;
@@ -49,6 +50,11 @@ namespace Yandex.Xml {
                 }
                 
                 result.Items.AddRange(xmlResponse.Items);
+
+                if (page == 2) {
+                    docOnPage = 50;
+                    page = 4;
+                }
             } while (result.Items.Count < needResult);
 
             return result;

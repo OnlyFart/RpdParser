@@ -1,8 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apitron.PDF.Kit;
+using Apitron.PDF.Kit.Configuration;
+using Apitron.PDF.Kit.Extraction;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 
@@ -20,11 +23,10 @@ namespace Extractors.ContentExtractors {
             try {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var doc = new FixedDocument(ms)) {
-                        foreach (var page in doc.Pages) {
-                            var pageText = page.ExtractText().Trim();
+                        foreach (var page in doc.Pages.Take(2)) {
+                            var pageText = page.ConvertToHtml(new Resolution(72, 72));
                             if (!string.IsNullOrWhiteSpace(pageText)) {
                                 text.Append(pageText);
-                                break;
                             }
                         }
                     }

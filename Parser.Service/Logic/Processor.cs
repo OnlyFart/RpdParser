@@ -184,14 +184,14 @@ namespace Parser.Service.Logic {
         /// <param name="domain">Домен</param>
         /// <returns></returns>
         public async Task<IEnumerable<Rpd>> ProcessFilesByDomain(string domain) {
-            var result = new List<Rpd>();
-
+            var urls = new List<string>();
+            
             foreach (var pattern in _config.XmlPatterns) {
                 var xmlResponse = await _yandexXml.Get(pattern.Replace("{domain}", domain), 500);
-                result.AddRange(await ProcessFilesByUrl(xmlResponse.Items.Select(i => i.Url)));
+                urls.AddRange(xmlResponse.Items.Select(i => i.Url));
             }
-           
-            return result;
+            
+            return await ProcessFilesByUrl(urls);
         }
     }
 }
