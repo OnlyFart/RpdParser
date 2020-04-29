@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Aspose.Words;
 using Aspose.Words.Drawing;
+using Aspose.Words.Saving;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
+using Document = Aspose.Words.Document;
 
 namespace Extractors.ContentExtractors {
     public class DocExtractor : ExtractorBase {
@@ -49,9 +51,9 @@ namespace Extractors.ContentExtractors {
             throw new ArgumentException($"Unsupported file type {path}");
         }
 
-        public override Extract ExtractText(byte[] bytes, string extension) {
+        public override DocumentContent ExtractText(byte[] bytes, string extension) {
             var content = new StringBuilder();
-            var result = new Extract();
+            var result = new DocumentContent();
 
             try {
                 using (var ms = new MemoryStream(bytes)) {
@@ -77,9 +79,9 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
-        public override async Task<Extract> ExtractImageText(byte[] bytes, string extension) {
+        public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
             var content = new StringBuilder();
-            var result = new Extract();
+            var result = new DocumentContent();
 
             try {
                 using (var ms = new MemoryStream(bytes)) {
@@ -91,11 +93,22 @@ namespace Extractors.ContentExtractors {
                             continue;
                         }
 
-                        var extractTextImage = await _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
-                        if (string.IsNullOrWhiteSpace(extractTextImage)) {
-                            continue;
+                        string extractTextImage;
+                        if (shape.ImageData.ImageType == ImageType.Emf) {
+                            using (var imageBytes = new MemoryStream()) {
+                                shape.GetShapeRenderer().Save(imageBytes, new ImageSaveOptions(SaveFormat.Png));
+                                extractTextImage = await _imageExtractor.ExtractTextImage(imageBytes.ToArray());
+                            }
+                        } else {
+                            extractTextImage = await _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
+                            
                         }
-
+                        
+                        if (string.IsNullOrWhiteSpace(extractTextImage)) {
+                            var image = shape.ImageData.ToImage();
+                            extractTextImage = await _imageExtractor.ExtractTextImage(image.Bytes);
+                        }
+                        
                         content.Append(extractTextImage);
                         result.HasImageContent = true;
                     }

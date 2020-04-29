@@ -1,6 +1,6 @@
-namespace Extractors.Types {
-    public class Rpd {
-        public RpdContent RpdContent = new RpdContent();
+namespace Extractors.Types.Document {
+    public class Document {
+        public DocumentBase DocumentContent = new DocumentBase();
 
         /// <summary>
         /// Путь к сохраненному файлу на диске
@@ -8,15 +8,10 @@ namespace Extractors.Types {
         public string FilePath;
         
         /// <summary>
-        /// Путь к файлк на сайте
+        /// Путь к файлу на сайте
         /// </summary>
         public string FileUrl;
-        
-        /// <summary>
-        /// Идентификатор файла
-        /// </summary>
-        public string Id;
-        
+
         /// <summary>
         /// Был ли в файле текст извлеченный из картинок
         /// </summary>

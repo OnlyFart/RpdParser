@@ -20,9 +20,9 @@ namespace Extractors.ContentExtractors {
             return !string.IsNullOrWhiteSpace(path) && path.EndsWith(".pdf", StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public override Extract ExtractText(byte[] bytes, string extension) {
+        public override DocumentContent ExtractText(byte[] bytes, string extension) {
             var text = new StringBuilder();
-            var result = new Extract();
+            var result = new DocumentContent();
 
             var iteration = 0;
             try {
@@ -96,8 +96,8 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
-        public override async Task<Extract> ExtractImageText(byte[] bytes, string extension) {
-            var result = new Extract();
+        public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
+            var result = new DocumentContent();
             var text = new StringBuilder();
             
             try {

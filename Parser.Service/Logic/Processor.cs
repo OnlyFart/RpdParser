@@ -6,10 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Extractors.ContentExtractors;
-using Extractors.DataExtractors;
-using Extractors.Types;
+using Extractors.DocumentExtractors;
+using Extractors.Types.Document;
+using Extractors.Types.Enums;
 using FileGetter;
 using Parser.Service.Configs;
 using Yandex.Xml.Contracts;
@@ -17,7 +17,7 @@ using Yandex.Xml.Contracts;
 namespace Parser.Service.Logic {
     public class Processor : IProcessor {
         private readonly List<ExtractorBase> _extractors;
-        private readonly RpdContentExtractor _rpdContentExtractor;
+        private readonly List<IDocumentExtractor<DocumentBase>> _documentExtractors;
         private readonly IFileGetter _fileGetter;
         private readonly IYandexXml _yandexXml;
         private readonly ProcessorConfig _config;
@@ -26,7 +26,7 @@ namespace Parser.Service.Logic {
         private const string SUCCESS_FOLDER = "Success";
         private const string FAIL_FOLDER = "Fail";
 
-        public Processor(List<ExtractorBase> extractors, RpdContentExtractor rpdContentExtractor, IFileGetter fileGetter, IYandexXml yandexXml, ProcessorConfig config) {
+        public Processor(List<ExtractorBase> extractors, List<IDocumentExtractor<DocumentBase>> documentExtractors, IFileGetter fileGetter, IYandexXml yandexXml, ProcessorConfig config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
@@ -40,7 +40,7 @@ namespace Parser.Service.Logic {
             }
             
             _extractors = extractors;
-            _rpdContentExtractor = rpdContentExtractor;
+            _documentExtractors = documentExtractors;
             _fileGetter = fileGetter;
             _yandexXml = yandexXml;
             _config = config;
@@ -51,7 +51,7 @@ namespace Parser.Service.Logic {
         /// </summary>
         /// <param name="url">URL файла</param>
         /// <returns></returns>
-        public async Task<Rpd> ProcessFileByUrl(string url) {
+        public async Task<Document> ProcessFileByUrl(string url) {
             var file = await _fileGetter.GetFile(url);
             if (file == null) {
                 throw new Exception($"Не удалось загрузить файл {url}");
@@ -68,8 +68,8 @@ namespace Parser.Service.Logic {
             // Что бы файлы не перетерались, добавлен такой код
             var savePath = await SaveFile(Path.Combine(_config.BaseDirectory, ALL_FOLDER, file.Host), file);
 
-            if (result.RpdContent.IsRpd) {
-                await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, file.Host), file);
+            if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
+                await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, result.DocumentContent.DocumentType.ToString(), file.Host), file);
             } else {
                 await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
             }
@@ -78,7 +78,7 @@ namespace Parser.Service.Logic {
             return result;
         }
 
-        private async Task<string> SaveFile(string directory, FileData file) {
+        private static async Task<string> SaveFile(string directory, FileData file) {
             if (!Directory.Exists(directory)) {
                 Directory.CreateDirectory(directory);
             }
@@ -100,21 +100,21 @@ namespace Parser.Service.Logic {
         /// </summary>
         /// <param name="urls">URL'ы файлов</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessFilesByUrl(IEnumerable<string> urls) {
-            var result = new ConcurrentQueue<Rpd>();
+        public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
+            var result = new ConcurrentQueue<Document>();
             var sw = Stopwatch.StartNew();
             int processed = 0;
 
             Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
-                Rpd rpd;
+                Document rpd;
                 try {
                     rpd = ProcessFileByUrl(url).Result;
                     var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
                     var speed = processed / seconds;
-                    Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                    Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
+                    Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+                    Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
                 } catch (Exception ex) {
-                    rpd = new Rpd {
+                    rpd = new Document {
                         FileUrl = url,
                         ErrorMessage = ex.Message
                     };
@@ -127,7 +127,7 @@ namespace Parser.Service.Logic {
             return await Task.FromResult(result);
         }
 
-        public async Task<Rpd> ProcessFileByPath(string path) {
+        public async Task<Document> ProcessFileByPath(string path) {
             var bytes = await File.ReadAllBytesAsync(path);
             var rpd = await ProcessFile(bytes, path);
 
@@ -136,8 +136,8 @@ namespace Parser.Service.Logic {
             return rpd;
         }
 
-        public async Task<IEnumerable<Rpd>> Process(IEnumerable<string> paths) {
-            var queue = new ConcurrentQueue<Rpd>();
+        public async Task<IEnumerable<Document>> Process(IEnumerable<string> paths) {
+            var queue = new ConcurrentQueue<Document>();
             var sw = Stopwatch.StartNew();
             var processed = 0;
 
@@ -146,8 +146,8 @@ namespace Parser.Service.Logic {
                 Interlocked.Increment(ref processed);
                 var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
                 var speed = processed / seconds;
-                Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
+                Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+                Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
                 queue.Enqueue(rpd);
             });
 
@@ -155,21 +155,32 @@ namespace Parser.Service.Logic {
             return await Task.FromResult(queue);
         }
 
-        private async Task<Rpd> ProcessFile(byte[] file, string extension) {
-            var result = new Rpd();
+        private async Task<Document> ProcessFile(byte[] file, string extension) {
+            var result = new Document();
 
             foreach (var extractor in _extractors.Where(t => t.IsSupport(extension))) {
-                var extract = extractor.ExtractText(file, extension);
+                var documentContent = extractor.ExtractText(file, extension);
                 
-                result.RpdContent = _rpdContentExtractor.Extract(extract.Content);
-                if (result.RpdContent.IsRpd) {
-                    return result;
+                // Сначала попытка определить тип документа на основании текстового содержания
+                foreach (var documentExtractor in _documentExtractors) {
+                    result.DocumentContent = documentExtractor.Extract(documentContent.Content);
+                    if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
+                        return result;
+                    }
                 }
                 
-                extract = await extractor.ExtractImageText(file, extension);
-                    
-                result.RpdContent = _rpdContentExtractor.Extract(extract.Content);
-                result.HasImageContent = extract.HasImageContent;
+                
+                // Если попытка на основе текстового содержания не увенчалась успехом
+                // То пытаемся определить по тексту на картинках.
+                // Логика разделена, т.к. извлекать текст из картинок довольно долго
+                documentContent = await extractor.ExtractImageText(file, extension);
+                foreach (var documentExtractor in _documentExtractors) {
+                    result.DocumentContent = documentExtractor.Extract(documentContent.Content);
+                    result.HasImageContent = documentContent.HasImageContent;
+                    if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
+                        return result;
+                    }
+                }
 
                 return result;
             }
@@ -183,7 +194,7 @@ namespace Parser.Service.Logic {
         /// </summary>
         /// <param name="domain">Домен</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessFilesByDomain(string domain) {
+        public async Task<IEnumerable<Document>> ProcessFilesByDomain(string domain) {
             var urls = new List<string>();
             
             foreach (var pattern in _config.XmlPatterns) {

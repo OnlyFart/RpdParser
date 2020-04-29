@@ -1,4 +1,5 @@
-﻿using Extractors.DataExtractors;
+﻿using Extractors.Configs;
+using Extractors.DocumentExtractors;
 using NUnit.Framework;
 
 namespace ExtractorsTests {
@@ -20,7 +21,7 @@ namespace ExtractorsTests {
         [TestCase("11.03.24 trutrutru 11.03.24  trutrututr  11.03.24rtutru rtu 1 ", 3)]
         [TestCase("11.03.24\r 11.03.24\r 11.03.241 ", 2)]
         public void ExtractCodesTest(string content, int count) {
-            var extractor = new RpdContentExtractor();
+            var extractor = new RpdContentExtractor(new RpdExtractorConfig());
             Assert.AreEqual(count, extractor.Extract(content).Codes.Count);
         }
     }

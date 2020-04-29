@@ -1,8 +1,11 @@
 using System.Net;
 using System.Text;
 using Consul;
+using Extractors.Configs;
 using Extractors.ContentExtractors;
 using Extractors.ContentExtractors.ContentImageExtractors;
+using Extractors.DocumentExtractors;
+using Extractors.Types.Document;
 using FileGetter;
 using JRPC.Registry.Ninject;
 using JRPC.Service;
@@ -25,6 +28,7 @@ namespace Parser.Service.IOC {
             
             var xmlConfig = config.GetSection("YandexXml").Get<YandexXmlConfig>();
             var processorConfig = config.GetSection("Processor").Get<ProcessorConfig>();
+            var dataExtractorConfig = config.GetSection("DataExtractor").Get<DataExtractorConfig>();
             
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServicePointManager.DefaultConnectionLimit = 1000;
@@ -42,6 +46,12 @@ namespace Parser.Service.IOC {
             
             Bind<YandexXmlConfig>().ToConstant(xmlConfig);
             Bind<IYandexXml>().To<YandexXml>().InSingletonScope();
+
+            Bind<RpdExtractorConfig>().ToConstant(dataExtractorConfig.RpdExtractor);
+            Bind<LiteratureExtractorConfig>().ToConstant(dataExtractorConfig.LiteratureExtractor);
+            
+            Bind<IDocumentExtractor<DocumentBase>>().To<RpdContentExtractor>().InSingletonScope();
+            Bind<IDocumentExtractor<DocumentBase>>().To<LiteratureExtractor>().InSingletonScope();
             
             Bind<IContentImageExtractor>().To<ContentImageExtractor>().InSingletonScope();
             Bind<ExtractorBase>().To<DocExtractor>().InSingletonScope();

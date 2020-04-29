@@ -1,5 +1,5 @@
 namespace Extractors.Types {
-    public class Extract {
+    public class DocumentContent {
         public string Content = string.Empty;
         public bool HasImageContent;
     }

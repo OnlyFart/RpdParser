@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Extractors.Types;
+using Extractors.Types.Document;
 using JRPC.Service;
 using Parser.Service.Contracts;
 using Parser.Service.Logic;
@@ -20,7 +20,7 @@ namespace Parser.Service.Service {
         /// <param name="path">Путь в директории</param>
         /// <param name="pattern">Шаблон для поиска файлов. По умолчанию *</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessDirectoryByPath(string path, string pattern = "*") {
+        public async Task<IEnumerable<Document>> ProcessDirectoryByPath(string path, string pattern = "*") {
             var paths = Directory.GetFiles(path, pattern, SearchOption.AllDirectories);
             return await ProcessFilesByPath(paths);
         }
@@ -30,7 +30,7 @@ namespace Parser.Service.Service {
         /// </summary>
         /// <param name="path">Путь к файлу</param>
         /// <returns></returns>
-        public async Task<Rpd> ProcessFileByPath(string path) {
+        public async Task<Document> ProcessFileByPath(string path) {
             return await _processor.ProcessFileByPath(path);
         }
         
@@ -39,7 +39,7 @@ namespace Parser.Service.Service {
         /// </summary>
         /// <param name="paths">Путь к файлам</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessFilesByPath(IEnumerable<string> paths) {
+        public async Task<IEnumerable<Document>> ProcessFilesByPath(IEnumerable<string> paths) {
             return await _processor.Process(paths);
         }
         
@@ -48,7 +48,7 @@ namespace Parser.Service.Service {
         /// </summary>
         /// <param name="url">URL файла</param>
         /// <returns></returns>
-        public async Task<Rpd> ProcessFileByUrl(string url) {
+        public async Task<Document> ProcessFileByUrl(string url) {
             return await _processor.ProcessFileByUrl(url);
         }
         
@@ -57,7 +57,7 @@ namespace Parser.Service.Service {
         /// </summary>
         /// <param name="urls">URL'ы файлов</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessFilesByUrl(IEnumerable<string> urls) {
+        public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
             return await _processor.ProcessFilesByUrl(urls);
         }
         
@@ -66,7 +66,7 @@ namespace Parser.Service.Service {
         /// </summary>
         /// <param name="domain">Домен</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Rpd>> ProcessFilesByDomain(string domain) {
+        public async Task<IEnumerable<Document>> ProcessFilesByDomain(string domain) {
             return await _processor.ProcessFilesByDomain(domain);
         }
     }

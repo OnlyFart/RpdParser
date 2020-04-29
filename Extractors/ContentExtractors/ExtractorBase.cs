@@ -23,7 +23,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public abstract Extract ExtractText(byte[] bytes, string extension);
+        public abstract DocumentContent ExtractText(byte[] bytes, string extension);
         
         /// <summary>
         /// Извлечение текста из картинок в документе
@@ -31,6 +31,6 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public abstract Task<Extract> ExtractImageText(byte[] bytes, string extension);
+        public abstract Task<DocumentContent> ExtractImageText(byte[] bytes, string extension);
     }
 }

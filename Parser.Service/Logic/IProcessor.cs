@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Extractors.Types;
+using Extractors.Types.Document;
 
 namespace Parser.Service.Logic {
     public interface IProcessor {
@@ -9,23 +10,23 @@ namespace Parser.Service.Logic {
         /// </summary>
         /// <param name="url">URL файла</param>
         /// <returns></returns>
-        Task<Rpd> ProcessFileByUrl(string url);
+        Task<Document> ProcessFileByUrl(string url);
 
         /// <summary>
         /// Обработка списка файлов по урлу
         /// </summary>
         /// <param name="urls">URL'ы файлов</param>
         /// <returns></returns>
-        Task<IEnumerable<Rpd>> ProcessFilesByUrl(IEnumerable<string> urls);
+        Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls);
 
-        Task<Rpd> ProcessFileByPath(string path);
-        Task<IEnumerable<Rpd>> Process(IEnumerable<string> paths);
+        Task<Document> ProcessFileByPath(string path);
+        Task<IEnumerable<Document>> Process(IEnumerable<string> paths);
 
         /// <summary>
         /// Обработка списка файлов по домену
         /// </summary>
         /// <param name="domain">Домен</param>
         /// <returns></returns>
-        Task<IEnumerable<Rpd>> ProcessFilesByDomain(string domain);
+        Task<IEnumerable<Document>> ProcessFilesByDomain(string domain);
     }
 }
