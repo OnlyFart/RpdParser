@@ -1,4 +1,4 @@
-namespace Extractors.Types.Enums {
+namespace Extractors.Contracts.Enums {
     /// <summary>
     /// Тип документа
     /// </summary>

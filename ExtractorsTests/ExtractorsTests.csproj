@@ -14,4 +14,22 @@
       <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Contents\hse.ru_code_exist.pdf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Contents\hse.ru_code_exist.doc">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Contents\hse.ru_code_exist.docx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Contents\hse.ru_code_image_exist.docx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Contents\rachmaninov.ru_code_exist.pdf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

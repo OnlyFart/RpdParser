@@ -1,6 +1,6 @@
-using Extractors.Types.Document;
+using Extractors.Contracts.Types;
 
-namespace Extractors.DocumentExtractors {
+namespace Extractors.Contracts.DocumentExtractors {
     /// <summary>
     /// Экстрактор типа файла из текста извлеченного из документа
     /// </summary>

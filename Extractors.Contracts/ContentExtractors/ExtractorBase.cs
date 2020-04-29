@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using Extractors.ContentExtractors.ContentImageExtractors;
-using Extractors.Types;
+using Extractors.Contracts.Types;
 
-namespace Extractors.ContentExtractors {
+namespace Extractors.Contracts.ContentExtractors {
     public abstract class ExtractorBase {
         protected readonly IContentImageExtractor _imageExtractor;
 

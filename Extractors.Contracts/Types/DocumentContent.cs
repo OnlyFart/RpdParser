@@ -1,4 +1,4 @@
-namespace Extractors.Types {
+namespace Extractors.Contracts.Types {
     public class DocumentContent {
         /// <summary>
         /// Текст из документа

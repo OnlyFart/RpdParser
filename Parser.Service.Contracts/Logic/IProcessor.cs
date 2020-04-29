@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Extractors.Types.Document;
+using Extractors.Contracts.Types;
 
-namespace Parser.Service.Logic {
+namespace Parser.Service.Contracts.Logic {
     public interface IProcessor {
         /// <summary>
         /// Обработка одного файла по урлу

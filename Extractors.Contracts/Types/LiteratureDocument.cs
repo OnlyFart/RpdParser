@@ -1,4 +1,4 @@
-namespace Extractors.Types.Document {
+namespace Extractors.Contracts.Types {
     public class LiteratureDocument : DocumentBase {
         /// <summary>
         /// Найденное плюс-слово

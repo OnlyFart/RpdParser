@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Extractors.Configs;
-using Extractors.Types.Document;
-using Extractors.Types.Enums;
+using Extractors.Contracts.DocumentExtractors;
+using Extractors.Contracts.Enums;
+using Extractors.Contracts.Types;
 
 namespace Extractors.DocumentExtractors {
     /// <summary>
@@ -48,27 +49,27 @@ namespace Extractors.DocumentExtractors {
                     }
                 } 
             }
+
+            if (_config.PlusWords.Count <= 0 && _plusWordsRgxs.Count <= 0) {
+                return result;
+            }
             
-            if (_config.PlusWords.Count > 0 || _plusWordsRgxs.Count > 0) {
-                foreach (var plusWord in _config.PlusWords) {
-                    if (content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
-                        result.PlusWord = plusWord;
-                        result.DocumentType = DocumentType.Literature;
-                        return result;
-                    }
-                }    
+            foreach (var plusWord in _config.PlusWords) {
+                if (content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
+                    result.PlusWord = plusWord;
+                    result.DocumentType = DocumentType.Literature;
+                    return result;
+                }
+            }    
                 
-                foreach (var plusWordRegex in _plusWordsRgxs) {
-                    var match = plusWordRegex.Match(content);
+            foreach (var plusWordRegex in _plusWordsRgxs) {
+                var match = plusWordRegex.Match(content);
                     
-                    if (match.Success) {
-                        result.PlusWord = match.Value;
-                        result.DocumentType = DocumentType.Literature;
-                        return result;
-                    }
-                } 
-            } else {
-                result.DocumentType = DocumentType.Literature;
+                if (match.Success) {
+                    result.PlusWord = match.Value;
+                    result.DocumentType = DocumentType.Literature;
+                    return result;
+                }
             }
 
             return result;

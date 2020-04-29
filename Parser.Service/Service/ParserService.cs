@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Extractors.Types.Document;
+using Extractors.Contracts.Types;
 using JRPC.Service;
 using Parser.Service.Contracts;
+using Parser.Service.Contracts.Logic;
+using Parser.Service.Contracts.Service;
 using Parser.Service.Logic;
 
 namespace Parser.Service.Service {

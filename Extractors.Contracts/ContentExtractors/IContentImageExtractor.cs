@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Extractors.ContentExtractors.ContentImageExtractors {
+namespace Extractors.Contracts.ContentExtractors {
     /// <summary>
     /// Экстрактор текстов из картинов
     /// </summary>

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Aspose.Words;
 using Aspose.Words.Drawing;
 using Aspose.Words.Saving;
-using Extractors.ContentExtractors.ContentImageExtractors;
-using Extractors.Types;
+using Extractors.Contracts;
+using Extractors.Contracts.ContentExtractors;
+using Extractors.Contracts.Types;
 using Document = Aspose.Words.Document;
 
 namespace Extractors.ContentExtractors {

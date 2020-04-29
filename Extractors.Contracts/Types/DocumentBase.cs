@@ -1,6 +1,6 @@
-using Extractors.Types.Enums;
+using Extractors.Contracts.Enums;
 
-namespace Extractors.Types.Document {
+namespace Extractors.Contracts.Types {
     public class DocumentBase {
         public DocumentType DocumentType;
     }

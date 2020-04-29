@@ -1,4 +1,4 @@
-namespace Extractors.Types.Document {
+namespace Extractors.Contracts.Types {
     public class Document {
         public DocumentBase DocumentContent = new DocumentBase();
 

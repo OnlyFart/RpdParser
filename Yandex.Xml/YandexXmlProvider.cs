@@ -6,6 +6,7 @@ using System.Web;
 using System.Xml.Linq;
 using Yandex.Xml.Configs;
 using Yandex.Xml.Contracts;
+using Yandex.Xml.Contracts.Types;
 
 namespace Yandex.Xml {
     /// <summary>

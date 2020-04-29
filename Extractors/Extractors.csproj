@@ -289,7 +289,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Extractors.Types\Extractors.Types.csproj" />
+      <ProjectReference Include="..\Extractors.Contracts\Extractors.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

@@ -2,8 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Extractors.Contracts.ContentExtractors;
 
-namespace Extractors.ContentExtractors.ContentImageExtractors {
+namespace Extractors.ContentExtractors {
     /// <summary>
     /// Экстрактор текстов из картинов
     /// </summary>

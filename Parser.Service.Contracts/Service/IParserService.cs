@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Extractors.Types.Document;
+using Extractors.Contracts.Types;
 
-namespace Parser.Service.Contracts {
+namespace Parser.Service.Contracts.Service {
     public interface IParserService {
         /// <summary>
         /// Обработка всех файлов директории на диске

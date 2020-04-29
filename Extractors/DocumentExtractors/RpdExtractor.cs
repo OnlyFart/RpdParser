@@ -2,8 +2,9 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Extractors.Configs;
-using Extractors.Types.Document;
-using Extractors.Types.Enums;
+using Extractors.Contracts.DocumentExtractors;
+using Extractors.Contracts.Enums;
+using Extractors.Contracts.Types;
 
 namespace Extractors.DocumentExtractors {
     public class RpdContentExtractor : IDocumentExtractor<RpdDocument> {

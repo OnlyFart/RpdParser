@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Yandex.Xml.Contracts.Types;
 
 namespace Yandex.Xml.Contracts {
     public interface IYandexXmlProvider {

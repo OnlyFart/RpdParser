@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Extractors.Types.Document {
+namespace Extractors.Contracts.Types {
     public class RpdDocument : DocumentBase {
         /// <summary>
         /// Список кодов направлений дисциплин

@@ -7,11 +7,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extractors.ContentExtractors;
+using Extractors.Contracts.ContentExtractors;
+using Extractors.Contracts.DocumentExtractors;
+using Extractors.Contracts.Enums;
+using Extractors.Contracts.Types;
 using Extractors.DocumentExtractors;
-using Extractors.Types.Document;
-using Extractors.Types.Enums;
 using FileGetter;
 using Parser.Service.Configs;
+using Parser.Service.Contracts.Logic;
 using Yandex.Xml.Contracts;
 
 namespace Parser.Service.Logic {

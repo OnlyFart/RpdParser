@@ -1,4 +1,4 @@
-namespace Yandex.Xml.Contracts {
+namespace Yandex.Xml.Contracts.Types {
     public class YandexXmlItem {
         public string Url;
         public string Title;

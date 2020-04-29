@@ -8,8 +8,9 @@ using Apitron.PDF.Kit;
 using Apitron.PDF.Kit.Extraction;
 using Apitron.PDF.Kit.FixedLayout;
 using Apitron.PDF.Kit.FixedLayout.ContentElements;
-using Extractors.ContentExtractors.ContentImageExtractors;
-using Extractors.Types;
+using Extractors.Contracts;
+using Extractors.Contracts.ContentExtractors;
+using Extractors.Contracts.Types;
 
 namespace Extractors.ContentExtractors {
     /// <summary>
