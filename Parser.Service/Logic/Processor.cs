@@ -22,6 +22,10 @@ namespace Parser.Service.Logic {
         private readonly IYandexXml _yandexXml;
         private readonly ProcessorConfig _config;
 
+        private const string ALL_FOLDER = "All";
+        private const string SUCCESS_FOLDER = "Success";
+        private const string FAIL_FOLDER = "Fail";
+
         public Processor(List<ExtractorBase> extractors, RpdContentExtractor rpdContentExtractor, IFileGetter fileGetter, IYandexXml yandexXml, ProcessorConfig config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
@@ -50,31 +54,45 @@ namespace Parser.Service.Logic {
         public async Task<Rpd> ProcessFileByUrl(string url) {
             var file = await _fileGetter.GetFile(url);
             if (file == null) {
-                throw new Exception($"Не смогли загрузить файл {url}");
+                throw new Exception($"Не удалось загрузить файл {url}");
             }
 
             if (string.IsNullOrWhiteSpace(file.FileName)) {
-                throw new Exception($"Не смогли определить имя файла по урлу {url}");
+                throw new Exception($"Не удалось определить имя файла по урлу {url}");
             }
             
             var result = await ProcessFile(file.Bytes, file.FileName);
             result.FileUrl = url;
-            
-            if (!Directory.Exists(Path.Combine(_config.BaseDirectory, file.Host))) {
-                Directory.CreateDirectory(Path.Combine(_config.BaseDirectory, file.Host));
-            }
-            
+
             // Есть вероятность, что имена файлов будут повторяться
             // Что бы файлы не перетерались, добавлен такой код
-            var savePath = Path.Combine(_config.BaseDirectory, file.Host, file.FileName);
-            for (var i = 0; File.Exists(savePath); i++) {
-                savePath = Path.Combine(_config.BaseDirectory, file.Host, $"{i}_{file.FileName}");
-            }
+            var savePath = await SaveFile(Path.Combine(_config.BaseDirectory, ALL_FOLDER, file.Host), file);
 
-            await File.WriteAllBytesAsync(savePath, file.Bytes);
+            if (result.RpdContent.IsRpd) {
+                await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, file.Host), file);
+            } else {
+                await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
+            }
 
             result.FilePath = savePath;
             return result;
+        }
+
+        private async Task<string> SaveFile(string directory, FileData file) {
+            if (!Directory.Exists(directory)) {
+                Directory.CreateDirectory(directory);
+            }
+            
+            var savePath = Path.Combine(directory, file.FileName);
+            
+            // Есть вероятность, что имена файлов будут повторяться
+            // Что бы файлы не перетерались, добавлен такой код
+            for (var i = 0; File.Exists(savePath); i++) {
+                savePath = Path.Combine(directory, $"{i}_{file.FileName}");
+            }
+                
+            await File.WriteAllBytesAsync(savePath, file.Bytes);
+            return savePath;
         }
         
         /// <summary>
@@ -86,34 +104,27 @@ namespace Parser.Service.Logic {
             var result = new ConcurrentQueue<Rpd>();
             var sw = Stopwatch.StartNew();
             int processed = 0;
-            var processFileBlock = new ActionBlock<string>(
-                async url => {
-                    Rpd rpd;
-                    try {
-                        rpd = await ProcessFileByUrl(url);
-                        Interlocked.Increment(ref processed);
-                        var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
-                        var speed = processed / seconds;
-                        Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                        Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
-                    } catch (Exception ex) {
-                        rpd = new Rpd {
-                            FileUrl = url,
-                            ErrorMessage = ex.Message
-                        };
-                    }
 
-                    result.Enqueue(rpd);
-                }, new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = _config.MaxParallelThreads});
+            Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
+                Rpd rpd;
+                try {
+                    rpd = ProcessFileByUrl(url).Result;
+                    var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
+                    var speed = processed / seconds;
+                    Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+                    Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
+                } catch (Exception ex) {
+                    rpd = new Rpd {
+                        FileUrl = url,
+                        ErrorMessage = ex.Message
+                    };
+                }
+                
+                Interlocked.Increment(ref processed);
+                result.Enqueue(rpd);
+            });
             
-            foreach (var path in urls) {
-                await processFileBlock.SendAsync(path);
-            }
-            
-            processFileBlock.Complete();
-            await processFileBlock.Completion;
-
-            return result;
+            return await Task.FromResult(result);
         }
 
         public async Task<Rpd> ProcessFileByPath(string path) {
@@ -129,30 +140,19 @@ namespace Parser.Service.Logic {
             var queue = new ConcurrentQueue<Rpd>();
             var sw = Stopwatch.StartNew();
             var processed = 0;
-            
-            var processFileBlock = new ActionBlock<string>(
-                async path => {
-                    var rpd = await ProcessFileByPath(path);
-                    Interlocked.Increment(ref processed);
-                    var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
-                    var speed = processed / seconds;
-                    Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                    Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
-                    queue.Enqueue(rpd);
-                }, new ExecutionDataflowBlockOptions
-                {
-                    MaxDegreeOfParallelism = _config.MaxParallelThreads
-                });
-            
-            foreach (var path in paths) {
-                await processFileBlock.SendAsync(path);
-            }
-            
-            processFileBlock.Complete();
-            await processFileBlock.Completion;
+
+            Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, path => {
+                var rpd = ProcessFileByPath(path).Result;
+                Interlocked.Increment(ref processed);
+                var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
+                var speed = processed / seconds;
+                Console.ForegroundColor = rpd.RpdContent.IsRpd ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+                Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {string.Join(", ", rpd.RpdContent.Codes.Distinct())}");
+                queue.Enqueue(rpd);
+            });
 
             Console.WriteLine(sw.ElapsedMilliseconds / 1000 / 60);
-            return queue;
+            return await Task.FromResult(queue);
         }
 
         private async Task<Rpd> ProcessFile(byte[] file, string extension) {

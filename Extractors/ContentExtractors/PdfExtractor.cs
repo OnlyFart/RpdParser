@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,9 @@ using System.Threading.Tasks;
 using Apitron.PDF.Kit;
 using Apitron.PDF.Kit.Configuration;
 using Apitron.PDF.Kit.Extraction;
+using Apitron.PDF.Kit.FixedLayout;
+using Apitron.PDF.Kit.FixedLayout.ContentElements;
+using Aspose.Words.Drawing;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 
@@ -20,13 +24,31 @@ namespace Extractors.ContentExtractors {
             var text = new StringBuilder();
             var result = new Extract();
 
+            var iteration = 0;
             try {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var doc = new FixedDocument(ms)) {
                         foreach (var page in doc.Pages.Take(2)) {
-                            var pageText = page.ConvertToHtml(new Resolution(72, 72));
-                            if (!string.IsNullOrWhiteSpace(pageText)) {
-                                text.Append(pageText);
+                            foreach (var element in page.Elements.Where(t => t.ElementType == ElementType.Text || t.ElementType == ElementType.FormXObject)) {
+                                if (element.ElementType == ElementType.FormXObject) {
+                                    foreach (var formElement in ((FormContentElement)element).Elements.Where(t => t.ElementType == ElementType.Text)) {
+                                        text.Append(((TextContentElement) formElement).TextObject?.Text ?? string.Empty);
+                                        
+                                        if (++iteration > 500) {
+                                            result.Content = text.ToString();
+                                            return result;
+                                        }
+                                    }
+                                }
+                                
+                                if (element.ElementType == ElementType.Text) {
+                                    text.Append(((TextContentElement) element).TextObject?.Text ?? string.Empty);
+                                }
+
+                                if (++iteration > 500) {
+                                    result.Content = text.ToString();
+                                    return result;
+                                }
                             }
                         }
                     }
@@ -38,26 +60,66 @@ namespace Extractors.ContentExtractors {
             result.Content = text.ToString();
             return result;
         }
+        
+        /// <summary>
+        /// Извлечение всех картинок из первых двух страниц файла
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        private static IEnumerable<ImageInfo> ExtractImages(Page page) {
+            var result = new List<ImageInfo>();
+
+            var iteration = 0;
+            foreach (var element in page.Elements.Where(e => e.ElementType == ElementType.Image || e.ElementType == ElementType.FormXObject)) {
+                if (++iteration > 500) {
+                    break;
+                }
+
+                switch (element.ElementType) {
+                    case ElementType.FormXObject: {
+                        foreach (var formElement in ((FormContentElement)element).Elements.Where(t => t.ElementType == ElementType.Image)) {
+                            if (++iteration > 500) {
+                                return result;
+                            }
+                                        
+                            result.Add(((ImageContentElement)formElement).ImageInfo);
+                        }
+
+                        break;
+                    }
+                    case ElementType.Image:
+                        result.Add(((ImageContentElement) element).ImageInfo);
+                        break;
+                }
+            }
+
+            return result;
+        }
 
         public override async Task<Extract> ExtractImageText(byte[] bytes, string extension) {
             var result = new Extract();
-
+            var text = new StringBuilder();
+            
             try {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var doc = new FixedDocument(ms)) {
-                        if (doc.Pages.Count == 0) {
-                            return result;
-                        }
+                        foreach (var page in doc.Pages.Take(2)) {
+                            foreach (var image in ExtractImages(page).Where(image => image.EncodedData != null && image.EncodedData.Length != 0)) {
+                                var pageText = await _imageExtractor.ExtractTextImage(image.EncodedData);
 
-                        foreach (var image in doc.Pages[0].ExtractImages()) {
-                            var pageText = await _imageExtractor.ExtractTextImage(image.EncodedData);
-                            if (string.IsNullOrWhiteSpace(pageText)) {
-                                continue;
-                            }
+                                if (string.IsNullOrWhiteSpace(pageText)) {
+                                    using (var fs = new MemoryStream()) {
+                                        image.SaveToBitmap(fs);
+                                        pageText = await _imageExtractor.ExtractTextImage(fs.ToArray());
+                                    }
+                                }
 
-                            result.Content = pageText;
-                            result.HasImageContent = true;
-                            break;
+                                if (!string.IsNullOrWhiteSpace(pageText)) {
+                                    text.Append(pageText);
+                                }
+
+                                result.HasImageContent = true;
+                            }    
                         }
                     }
                 }
@@ -65,6 +127,7 @@ namespace Extractors.ContentExtractors {
                 Console.WriteLine(ex);
             }
 
+            result.Content = text.ToString();
             return result;
         }
     }

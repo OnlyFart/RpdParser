@@ -28,7 +28,7 @@ namespace Extractors.Types {
         public bool IsValid => string.IsNullOrWhiteSpace(ErrorMessage);
         
         /// <summary>
-        /// Сообщение об ошибке, еслм не смогли обработать файл
+        /// Сообщение об ошибке, если не удалось обработать файл
         /// </summary>
         public string ErrorMessage;
     }
