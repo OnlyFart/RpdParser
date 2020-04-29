@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Extractors.Configs;
@@ -11,7 +12,7 @@ namespace ExtractorsTests.ContentExtractorsTests {
         [TestCase("Contents/hse.ru_code_exist.docx", "38.04.04")]
         public void DocExtractTextTest(string path, string code) {
             var extractor = new DocExtractor(new ContentImageExtractor());
-            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig());
+            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>(), new List<string>()));
             var bytes = File.ReadAllBytes(path);
 
             var content = extractor.ExtractText(bytes, path);

@@ -8,7 +8,6 @@ using Apitron.PDF.Kit;
 using Apitron.PDF.Kit.Extraction;
 using Apitron.PDF.Kit.FixedLayout;
 using Apitron.PDF.Kit.FixedLayout.ContentElements;
-using Extractors.Contracts;
 using Extractors.Contracts.ContentExtractors;
 using Extractors.Contracts.Types;
 
@@ -28,7 +27,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public override DocumentContent ExtractText(byte[] bytes, string extension) {
+        protected override DocumentContent ExtractTextInternal(byte[] bytes, string extension) {
             var text = new StringBuilder();
             var result = new DocumentContent();
 
@@ -41,7 +40,7 @@ namespace Extractors.ContentExtractors {
                                 if (element.ElementType == ElementType.FormXObject) {
                                     foreach (var formElement in ((FormContentElement)element).Elements.Where(t => t.ElementType == ElementType.Text)) {
                                         text.Append(((TextContentElement) formElement).TextObject?.Text ?? string.Empty);
-                                        
+
                                         if (++iteration > 500) {
                                             result.Content = text.ToString();
                                             return result;
@@ -110,7 +109,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
+        protected override async Task<DocumentContent> ExtractImageTextInternal(byte[] bytes, string extension) {
             var result = new DocumentContent();
             var text = new StringBuilder();
             

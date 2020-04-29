@@ -53,7 +53,7 @@ namespace Extractors.DocumentExtractors {
             if (result.Codes.Count > 0) {
                 if (_config.MinusWords.Count > 0) {
                     foreach (var minusWord in _config.MinusWords) {
-                        if (content.Contains(minusWord, StringComparison.InvariantCultureIgnoreCase)) {
+                        if (!string.IsNullOrWhiteSpace(minusWord) && content.Contains(minusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.MinusWord = minusWord;
                             return result;
                         }
@@ -62,7 +62,7 @@ namespace Extractors.DocumentExtractors {
                 
                 if (_config.PlusWords.Count > 0) {
                     foreach (var plusWord in _config.PlusWords) {
-                        if (content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
+                        if (!string.IsNullOrWhiteSpace(plusWord) && content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.PlusWord = plusWord;
                             result.DocumentType = DocumentType.Rpd;
                             break;

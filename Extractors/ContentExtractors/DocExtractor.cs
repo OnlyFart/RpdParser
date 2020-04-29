@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Aspose.Words;
 using Aspose.Words.Drawing;
 using Aspose.Words.Saving;
-using Extractors.Contracts;
 using Extractors.Contracts.ContentExtractors;
 using Extractors.Contracts.Types;
 using Document = Aspose.Words.Document;
@@ -60,7 +59,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public override DocumentContent ExtractText(byte[] bytes, string extension) {
+        protected override DocumentContent ExtractTextInternal(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new DocumentContent();
 
@@ -94,7 +93,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="bytes">Файл</param>
         /// <param name="extension">Расширение файла</param>
         /// <returns></returns>
-        public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
+        protected override async Task<DocumentContent> ExtractImageTextInternal(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new DocumentContent();
 

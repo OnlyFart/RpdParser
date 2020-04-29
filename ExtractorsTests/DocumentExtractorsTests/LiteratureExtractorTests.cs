@@ -8,7 +8,7 @@ namespace ExtractorsTests.DocumentExtractorsTests {
     public class LiteratureExtractorTests {
         [Test]
         public void ExtractEmptyTest() {
-            var config = new LiteratureExtractorConfig();
+            var config = new LiteratureExtractorConfig(new List<string>(), new List<string>(), new List<string>());
             var extractor = new LiteratureExtractor(config);
             Assert.AreEqual(DocumentType.Unknown, extractor.Extract("test").DocumentType);
         }
@@ -16,7 +16,7 @@ namespace ExtractorsTests.DocumentExtractorsTests {
         [TestCase("плюс dfgdfh", "плюс", DocumentType.Literature)]
         [TestCase("ф11.034", "плюс", DocumentType.Unknown)]
         public void ExtractPlusWordsTest(string content, string plus, DocumentType type) {
-            var config = new LiteratureExtractorConfig{ PlusWords = new List<string>{plus}};
+            var config = new LiteratureExtractorConfig(new List<string>{plus}, new List<string>(), new List<string>());
             var extractor = new LiteratureExtractor(config);
             Assert.AreEqual(type, extractor.Extract(content).DocumentType);
         }
@@ -24,7 +24,7 @@ namespace ExtractorsTests.DocumentExtractorsTests {
         [TestCase("45 плюс dfgdfh", "\\d+", DocumentType.Literature)]
         [TestCase("ф11.03", "\\d\\d\\d", DocumentType.Unknown)]
         public void ExtractPlusWordsRegexTest(string content, string plus, DocumentType type) {
-            var config = new LiteratureExtractorConfig{ PlusWordsRegexs = new List<string>{plus}};
+            var config = new LiteratureExtractorConfig(new List<string>{plus}, new List<string>{plus}, new List<string>());
             var extractor = new LiteratureExtractor(config);
             Assert.AreEqual(type, extractor.Extract(content).DocumentType);
         }
@@ -33,7 +33,7 @@ namespace ExtractorsTests.DocumentExtractorsTests {
         [TestCase("плюс минус", "минус", DocumentType.Unknown)]
         [TestCase("", "минус", DocumentType.Unknown)]
         public void ExtractMinusWordsTest(string content, string minus, DocumentType type) {
-            var config = new LiteratureExtractorConfig{ MinusWords = new List<string>{minus}};
+            var config = new LiteratureExtractorConfig(new List<string>(), new List<string>(), new List<string>{minus});
             var extractor = new LiteratureExtractor(config);
             Assert.AreEqual(type, extractor.Extract(content).DocumentType);
         }
@@ -43,7 +43,7 @@ namespace ExtractorsTests.DocumentExtractorsTests {
         [TestCase("ф11.034 плюс минус", "плюс", "минус", DocumentType.Unknown)]
         [TestCase("11.03.24 плюс", "плюс", "минус", DocumentType.Literature)]
         public void ExtractPlusMinusWordsTest(string content, string plus, string minus, DocumentType type) {
-            var config = new LiteratureExtractorConfig {PlusWords = new List<string> {plus}, MinusWords = new List<string> {minus}};
+            var config = new LiteratureExtractorConfig(new List<string>{plus}, new List<string>(), new List<string>{minus});
             var extractor = new LiteratureExtractor(config);
             
             var literatureDocument = extractor.Extract(content);
