@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Extractors.Types;
 using Extractors.Types.Document;
 
 namespace Parser.Service.Logic {
@@ -18,8 +17,19 @@ namespace Parser.Service.Logic {
         /// <param name="urls">URL'ы файлов</param>
         /// <returns></returns>
         Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls);
-
+        
+        /// <summary>
+        /// Обработка файла по пути
+        /// </summary>
+        /// <param name="path">Путь к файлу</param>
+        /// <returns></returns>
         Task<Document> ProcessFileByPath(string path);
+        
+        /// <summary>
+        /// Обработка файлов по путям
+        /// </summary>
+        /// <param name="paths">Список путей к файлам</param>
+        /// <returns></returns>
         Task<IEnumerable<Document>> Process(IEnumerable<string> paths);
 
         /// <summary>

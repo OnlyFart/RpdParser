@@ -7,11 +7,19 @@ using System.Threading.Tasks;
 using System.Web;
 
 namespace FileGetter {
+    /// <summary>
+    /// Получатор файлов из интернета
+    /// </summary>
     public class FileNetworkGetter : IFileGetter {
         private const int MAX_TRY_COUNT = 3;
         
-        public async Task<FileData> GetFile(string path) {
-            var uri = new Uri(path);
+        /// <summary>
+        /// Получение файла по его адресу
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public async Task<FileData> GetFile(string address) {
+            var uri = new Uri(address);
 
             for (var i = 0; i < MAX_TRY_COUNT; i++) {
                 var request = (HttpWebRequest) WebRequest.Create(uri);

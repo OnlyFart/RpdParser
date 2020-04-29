@@ -12,8 +12,10 @@ using Extractors.Types;
 using Document = Aspose.Words.Document;
 
 namespace Extractors.ContentExtractors {
+    /// <summary>
+    /// Экстрактор текстов из Doc, docx и т.д. файлов
+    /// </summary>
     public class DocExtractor : ExtractorBase {
-
         public DocExtractor(IContentImageExtractor imageExtractor) : base(imageExtractor) { }
 
         /// <summary>
@@ -50,7 +52,13 @@ namespace Extractors.ContentExtractors {
 
             throw new ArgumentException($"Unsupported file type {path}");
         }
-
+        
+        /// <summary>
+        /// Извлечение текста из документа
+        /// </summary>
+        /// <param name="bytes">Файл</param>
+        /// <param name="extension">Расширение файла</param>
+        /// <returns></returns>
         public override DocumentContent ExtractText(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new DocumentContent();
@@ -79,6 +87,12 @@ namespace Extractors.ContentExtractors {
             return result;
         }
 
+        /// <summary>
+        /// Извлечение текста из картинок в документе
+        /// </summary>
+        /// <param name="bytes">Файл</param>
+        /// <param name="extension">Расширение файла</param>
+        /// <returns></returns>
         public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
             var content = new StringBuilder();
             var result = new DocumentContent();

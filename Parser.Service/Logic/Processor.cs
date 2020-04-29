@@ -19,14 +19,14 @@ namespace Parser.Service.Logic {
         private readonly List<ExtractorBase> _extractors;
         private readonly List<IDocumentExtractor<DocumentBase>> _documentExtractors;
         private readonly IFileGetter _fileGetter;
-        private readonly IYandexXml _yandexXml;
+        private readonly IYandexXmlProvider _yandexXmlProvider;
         private readonly ProcessorConfig _config;
 
         private const string ALL_FOLDER = "All";
         private const string SUCCESS_FOLDER = "Success";
         private const string FAIL_FOLDER = "Fail";
 
-        public Processor(List<ExtractorBase> extractors, List<IDocumentExtractor<DocumentBase>> documentExtractors, IFileGetter fileGetter, IYandexXml yandexXml, ProcessorConfig config) {
+        public Processor(List<ExtractorBase> extractors, List<IDocumentExtractor<DocumentBase>> documentExtractors, IFileGetter fileGetter, IYandexXmlProvider yandexXmlProvider, ProcessorConfig config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
@@ -42,7 +42,7 @@ namespace Parser.Service.Logic {
             _extractors = extractors;
             _documentExtractors = documentExtractors;
             _fileGetter = fileGetter;
-            _yandexXml = yandexXml;
+            _yandexXmlProvider = yandexXmlProvider;
             _config = config;
         }
         
@@ -126,7 +126,12 @@ namespace Parser.Service.Logic {
             
             return await Task.FromResult(result);
         }
-
+        
+        /// <summary>
+        /// Обработка файла по пути
+        /// </summary>
+        /// <param name="path">Путь к файлу</param>
+        /// <returns></returns>
         public async Task<Document> ProcessFileByPath(string path) {
             var bytes = await File.ReadAllBytesAsync(path);
             var rpd = await ProcessFile(bytes, path);
@@ -135,7 +140,12 @@ namespace Parser.Service.Logic {
 
             return rpd;
         }
-
+        
+        /// <summary>
+        /// Обработка файлов по путям
+        /// </summary>
+        /// <param name="paths">Список путей к файлам</param>
+        /// <returns></returns>
         public async Task<IEnumerable<Document>> Process(IEnumerable<string> paths) {
             var queue = new ConcurrentQueue<Document>();
             var sw = Stopwatch.StartNew();
@@ -198,7 +208,7 @@ namespace Parser.Service.Logic {
             var urls = new List<string>();
             
             foreach (var pattern in _config.XmlPatterns) {
-                var xmlResponse = await _yandexXml.Get(pattern.Replace("{domain}", domain), 500);
+                var xmlResponse = await _yandexXmlProvider.Get(pattern.Replace("{domain}", domain), 500);
                 urls.AddRange(xmlResponse.Items.Select(i => i.Url));
             }
             

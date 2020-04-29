@@ -45,7 +45,7 @@ namespace Parser.Service.IOC {
             Bind<IProcessor>().To<Processor>().InSingletonScope();
             
             Bind<YandexXmlConfig>().ToConstant(xmlConfig);
-            Bind<IYandexXml>().To<YandexXml>().InSingletonScope();
+            Bind<IYandexXmlProvider>().To<YandexXmlProvider>().InSingletonScope();
 
             Bind<RpdExtractorConfig>().ToConstant(dataExtractorConfig.RpdExtractor);
             Bind<LiteratureExtractorConfig>().ToConstant(dataExtractorConfig.LiteratureExtractor);

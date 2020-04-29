@@ -5,6 +5,6 @@ namespace FileGetter {
     /// Получатеть контентов из интернета
     /// </summary>
     public interface IFileGetter {
-        Task<FileData> GetFile(string path);
+        Task<FileData> GetFile(string address);
     }
 }

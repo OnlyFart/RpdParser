@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Extractors.Types;
 using Extractors.Types.Document;
 
 namespace Parser.Service.Contracts {

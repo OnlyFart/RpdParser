@@ -6,6 +6,9 @@ using Extractors.Types.Document;
 using Extractors.Types.Enums;
 
 namespace Extractors.DocumentExtractors {
+    /// <summary>
+    /// Экстрактор типа файла из текста извлеченного из документа
+    /// </summary>
     public class LiteratureExtractor : IDocumentExtractor<LiteratureDocument> {
         private readonly LiteratureExtractorConfig _config;
 
@@ -68,7 +71,7 @@ namespace Extractors.DocumentExtractors {
                 result.DocumentType = DocumentType.Literature;
             }
 
-                return result;
+            return result;
         }
     }
 }

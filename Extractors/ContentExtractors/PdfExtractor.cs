@@ -5,21 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apitron.PDF.Kit;
-using Apitron.PDF.Kit.Configuration;
 using Apitron.PDF.Kit.Extraction;
 using Apitron.PDF.Kit.FixedLayout;
 using Apitron.PDF.Kit.FixedLayout.ContentElements;
-using Aspose.Words.Drawing;
 using Extractors.ContentExtractors.ContentImageExtractors;
 using Extractors.Types;
 
 namespace Extractors.ContentExtractors {
+    /// <summary>
+    /// Экстрактор текстов из Pdf файлов
+    /// </summary>
     public class PdfExtractor : ExtractorBase {
         public PdfExtractor(IContentImageExtractor imageExtractor) : base(imageExtractor) { }
         public override bool IsSupport(string path) {
             return !string.IsNullOrWhiteSpace(path) && path.EndsWith(".pdf", StringComparison.InvariantCultureIgnoreCase);
         }
-
+        
+        /// <summary>
+        /// Извлечение текста из документа
+        /// </summary>
+        /// <param name="bytes">Файл</param>
+        /// <param name="extension">Расширение файла</param>
+        /// <returns></returns>
         public override DocumentContent ExtractText(byte[] bytes, string extension) {
             var text = new StringBuilder();
             var result = new DocumentContent();
@@ -95,7 +102,13 @@ namespace Extractors.ContentExtractors {
 
             return result;
         }
-
+        
+        /// <summary>
+        /// Извлечение текста из картинок в документе
+        /// </summary>
+        /// <param name="bytes">Файл</param>
+        /// <param name="extension">Расширение файла</param>
+        /// <returns></returns>
         public override async Task<DocumentContent> ExtractImageText(byte[] bytes, string extension) {
             var result = new DocumentContent();
             var text = new StringBuilder();

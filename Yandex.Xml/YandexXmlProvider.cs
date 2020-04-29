@@ -8,12 +8,19 @@ using Yandex.Xml.Configs;
 using Yandex.Xml.Contracts;
 
 namespace Yandex.Xml {
-    public class YandexXml : IYandexXml {
+    /// <summary>
+    /// Провайдер к YandexXml
+    /// </summary>
+    public class YandexXmlProvider : IYandexXmlProvider {
         private readonly YandexXmlConfig _config;
         private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
+        
+        /// <summary>
+        /// Максимальное количетсво попыток обращения к Yandex.Xml
+        /// </summary>
         private const int MAX_REQUEST_COUNT = 5;
         
-        public YandexXml(YandexXmlConfig config) {
+        public YandexXmlProvider(YandexXmlConfig config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
@@ -28,7 +35,13 @@ namespace Yandex.Xml {
 
             _config = config;
         }
-
+        
+        /// <summary>
+        /// Получение данных из Yandex.Xml
+        /// </summary>
+        /// <param name="query">Запрос</param>
+        /// <param name="needResult">Нужное количество результатов (максимум 250. Ограничений яндекса)</param>
+        /// <returns></returns>
         public async Task<YandexXmlResponse> Get(string query, int needResult) {
             var result = new YandexXmlResponse();
             var page = 0;
@@ -101,7 +114,7 @@ namespace Yandex.Xml {
                 }
                 
                 foreach (var group in grouping.Elements("group")) {
-                    var doc = @group.Element("doc");
+                    var doc = group.Element("doc");
                     if (doc == null) {
                         continue;
                     }
