@@ -7,9 +7,12 @@ namespace Extractors.Configs {
         /// </summary>
         public string Regex { get; set; }
 
-        public RpdExtractorConfig() : this(new List<string>(), new List<string>()) {
+        public RpdExtractorConfig() : this(new List<string>(), new List<string>(), string.Empty) {
             
-        } 
-        public RpdExtractorConfig(IEnumerable<string> plusWords, IEnumerable<string> minusWords) : base(plusWords, minusWords) { }
+        }
+
+        public RpdExtractorConfig(IEnumerable<string> plusWords, IEnumerable<string> minusWords, string regex) : base(plusWords, minusWords) {
+            Regex = regex;
+        }
     }
 }

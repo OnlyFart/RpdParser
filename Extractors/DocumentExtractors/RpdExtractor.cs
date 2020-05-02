@@ -9,20 +9,7 @@ using Extractors.Contracts.Types;
 namespace Extractors.DocumentExtractors {
     public class RpdContentExtractor : IDocumentExtractor<RpdDocument> {
         private readonly RpdExtractorConfig _config;
-        /// <summary>
-        /// Регулярное выражение, используемое по умолчанию для поиска
-        /// </summary>
-        private readonly Regex _default = new Regex(@"(?<code>\d\d\.0\d\.\d\d)($|\D)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        
-        /// <summary>
-        /// Регулярное выражение которое перекрывает, выражение по умолчанию
-        /// </summary>
-        private Regex _custom;
-        
-        public Regex Rgx  {
-            get => _custom ?? _default;
-            set => _custom = value;
-        }
+        private readonly Regex _rgx;
 
         /// <summary>
         /// Экстрактор данных из РПД документа
@@ -31,10 +18,16 @@ namespace Extractors.DocumentExtractors {
         /// Внимание!!! В качестве результата будет отдана группа 'code'</param>
         /// <param name="config"></param>
         public RpdContentExtractor(RpdExtractorConfig config) {
-            _config = config;
-            if (!string.IsNullOrWhiteSpace(config.Regex)) {
-                Rgx = new Regex(config.Regex, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (config == null) {
+                throw new ArgumentNullException(nameof(config));
             }
+
+            if (string.IsNullOrWhiteSpace(config.Regex)) {
+                throw new ArgumentNullException(nameof(config.Regex));
+            }
+            
+            _config = config;
+            _rgx = new Regex(config.Regex, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         }
         
         /// <summary>
@@ -49,7 +42,7 @@ namespace Extractors.DocumentExtractors {
                 return result;
             }
 
-            result.Codes = Rgx.Matches(content).Select(t => t.Groups["code"].Value.Trim()).ToHashSet();
+            result.Codes = _rgx.Matches(content).Select(t => t.Groups["code"].Value.Trim()).ToHashSet();
             if (result.Codes.Count > 0) {
                 if (_config.MinusWords.Count > 0) {
                     foreach (var minusWord in _config.MinusWords) {

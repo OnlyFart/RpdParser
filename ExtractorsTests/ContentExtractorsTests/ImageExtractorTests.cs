@@ -11,7 +11,7 @@ namespace ExtractorsTests.ContentExtractorsTests {
         [TestCase("Contents/hse.ru_code_image_exist.docx", "38.03.02")]
         public void ImageExtractDocTextTest(string path, string code) {
             var extractor = new DocExtractor(new ContentImageExtractor());
-            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>(), new List<string>()));
+            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>(), new List<string>(), @"(?<code>\d\d\.0\d\.\d\d)($|\D)"));
             var bytes = File.ReadAllBytes(path);
 
             var content = extractor.ExtractImageText(bytes, path).Result;
@@ -24,7 +24,7 @@ namespace ExtractorsTests.ContentExtractorsTests {
         [TestCase("Contents/rachmaninov.ru_code_exist.pdf", "53.02.03")]
         public void ImageExtractPdfTextTest(string path, string code) {
             var extractor = new PdfExtractor(new ContentImageExtractor());
-            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>(), new List<string>()));
+            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>(), new List<string>(), @"(?<code>\d\d\.0\d\.\d\d)($|\D)"));
             var bytes = File.ReadAllBytes(path);
 
             var content = extractor.ExtractImageText(bytes, path).Result;

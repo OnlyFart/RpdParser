@@ -15,7 +15,7 @@ namespace ExtractorsTests.ContentExtractorsTests {
         [TestCase("Contents/www.hse.ru_code_exist.pdf", "рабочая программа", "45.03.02")]
         public void PdfExtractTextRpdTest(string path, string plus, string code) {
             var pdfExtractor = new PdfExtractor(new ContentImageExtractor());
-            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>{plus}, new List<string>()));
+            var rdpExtractor = new RpdContentExtractor(new RpdExtractorConfig(new List<string>{plus}, new List<string>(), @"(?<code>\d\d\.0\d\.\d\d)($|\D)"));
             var bytes = File.ReadAllBytes(path);
 
             var content = pdfExtractor.ExtractText(bytes, ".pdf");
