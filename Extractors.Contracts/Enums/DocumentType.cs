@@ -11,11 +11,6 @@ namespace Extractors.Contracts.Enums {
         /// <summary>
         /// РПД документ
         /// </summary>
-        Rpd = 1,
-        
-        /// <summary>
-        /// Список литературы
-        /// </summary>
-        Literature = 2,
+        Rpd = 1
     }
 }

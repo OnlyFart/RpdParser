@@ -50,11 +50,9 @@ namespace Parser.Service.IOC {
             Bind<IYandexXmlProvider>().To<YandexXmlProvider>().InSingletonScope();
 
             Bind<RpdExtractorConfig>().ToConstant(dataExtractorConfig.RpdExtractor);
-            Bind<LiteratureExtractorConfig>().ToConstant(dataExtractorConfig.LiteratureExtractor);
-            
+
             Bind<IDocumentExtractor<DocumentBase>>().To<RpdContentExtractor>().InSingletonScope();
-            Bind<IDocumentExtractor<DocumentBase>>().To<LiteratureExtractor>().InSingletonScope();
-            
+
             Bind<IContentImageExtractor>().To<ContentImageExtractor>().InSingletonScope();
             Bind<ExtractorBase>().To<DocExtractor>().InSingletonScope();
             Bind<ExtractorBase>().To<PdfExtractor>().InSingletonScope();

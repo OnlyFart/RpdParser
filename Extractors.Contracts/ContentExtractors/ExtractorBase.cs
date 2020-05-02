@@ -66,6 +66,5 @@ namespace Extractors.Contracts.ContentExtractors {
             content.Content = Regex.Replace(content.Content, "\\r|\\n|\\s", string.Empty);
             return content;
         }
-
     }
 }

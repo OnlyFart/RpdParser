@@ -23,7 +23,6 @@ namespace Parser.Service.Logic {
         private readonly IYandexXmlProvider _yandexXmlProvider;
         private readonly ProcessorConfig _config;
 
-        private const string ALL_FOLDER = "All";
         private const string SUCCESS_FOLDER = "Success";
         private const string FAIL_FOLDER = "Fail";
 
@@ -65,14 +64,12 @@ namespace Parser.Service.Logic {
             var result = await ProcessFile(file.Bytes, file.FileName);
             result.FileUrl = url;
 
-            // Есть вероятность, что имена файлов будут повторяться
-            // Что бы файлы не перетерались, добавлен такой код
-            var savePath = await SaveFile(Path.Combine(_config.BaseDirectory, ALL_FOLDER, file.Host), file);
+            string savePath;
 
             if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
-                await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, result.DocumentContent.DocumentType.ToString(), file.Host), file);
+                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, result.DocumentContent.DocumentType.ToString(), file.Host), file);
             } else {
-                await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
+                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
             }
 
             result.FilePath = savePath;
