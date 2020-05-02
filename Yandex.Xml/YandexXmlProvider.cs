@@ -15,6 +15,7 @@ namespace Yandex.Xml {
     public class YandexXmlProvider : IYandexXmlProvider {
         private readonly YandexXmlConfig _config;
         private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
+        public const int MAX_XML_RESULT = 250;
         
         /// <summary>
         /// Максимальное количетсво попыток обращения к Yandex.Xml

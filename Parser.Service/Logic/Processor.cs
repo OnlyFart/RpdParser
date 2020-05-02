@@ -13,14 +13,15 @@ using Extractors.Contracts.Types;
 using FileGetter;
 using Parser.Service.Configs;
 using Parser.Service.Contracts.Logic;
+using Yandex.Xml;
 using Yandex.Xml.Contracts;
 
 namespace Parser.Service.Logic {
     public class Processor : IProcessor {
         private readonly List<ExtractorBase> _extractors;
         private readonly List<IDocumentExtractor<DocumentBase>> _documentExtractors;
-        private readonly IFileGetter _fileGetter;
         private readonly IYandexXmlProvider _yandexXmlProvider;
+        private readonly IFileGetter _fileGetter;
         private readonly ProcessorConfig _config;
 
         private const string SUCCESS_FOLDER = "Success";
@@ -67,7 +68,7 @@ namespace Parser.Service.Logic {
             string savePath;
 
             if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
-                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, result.DocumentContent.DocumentType.ToString(), file.Host), file);
+                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, file.Host), file);
             } else {
                 savePath = await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
             }
@@ -101,7 +102,7 @@ namespace Parser.Service.Logic {
         public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
             var result = new ConcurrentQueue<Document>();
             var sw = Stopwatch.StartNew();
-            int processed = 0;
+            var processed = 0;
 
             Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
                 Document rpd;
@@ -206,7 +207,7 @@ namespace Parser.Service.Logic {
             var urls = new List<string>();
             
             foreach (var pattern in _config.XmlPatterns) {
-                var xmlResponse = await _yandexXmlProvider.Get(pattern.Replace("{domain}", domain), 500);
+                var xmlResponse = await _yandexXmlProvider.Get(pattern.Replace("{domain}", domain), YandexXmlProvider.MAX_XML_RESULT);
                 urls.AddRange(xmlResponse.Items.Select(i => i.Url));
             }
             
