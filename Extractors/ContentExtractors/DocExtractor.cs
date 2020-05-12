@@ -108,7 +108,7 @@ namespace Extractors.ContentExtractors {
 
                     foreach (var node in doc.GetChildNodes(NodeType.Shape, true)) {
                         var shape = (Shape) node;
-                        if (!shape.HasImage || shape.ImageData.ImageBytes.Length == 8818) {
+                        if (!shape.HasImage || shape.ImageData.ImageBytes == null || shape.ImageData.ImageBytes.Length == 8818) {
                             continue;
                         }
 
