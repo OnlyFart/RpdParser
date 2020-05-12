@@ -2,10 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
-using MimeKit;
 using NLog;
 
 namespace FileGetter {

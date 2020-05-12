@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MimeKit" Version="2.6.0" />
       <PackageReference Include="NLog" Version="4.7.0" />
     </ItemGroup>
 

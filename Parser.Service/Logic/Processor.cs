@@ -116,6 +116,8 @@ namespace Parser.Service.Logic {
                     Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
                     _logger.Info($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
                 } catch (Exception ex) {
+                    _logger.Error(ex, $"При обработке {url} возникло исключение");
+                    
                     rpd = new Document {
                         FileUrl = url,
                         ErrorMessage = ex.Message
