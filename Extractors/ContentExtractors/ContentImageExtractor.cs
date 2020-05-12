@@ -25,7 +25,7 @@ namespace Extractors.ContentExtractors {
         /// <param name="image">Картинка в виде массива байт</param>
         /// <param name="lang">Языки</param>
         /// <returns></returns>
-        private static async Task<string> ParseText(string tesseractPath, byte[] image, params string[] lang) {
+        private async Task<string> ParseText(string tesseractPath, byte[] image, params string[] lang) {
             var result = string.Empty;
             var tempOutputFile = Path.GetTempPath() + Guid.NewGuid();
             var tempImageFile = Path.GetTempFileName();
@@ -55,7 +55,7 @@ namespace Extractors.ContentExtractors {
                     }
                 }
             } catch {
-                
+
             } finally {
                 File.Delete(tempImageFile);
                 File.Delete(tempOutputFile + ".txt");

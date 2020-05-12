@@ -10,12 +10,15 @@ using Apitron.PDF.Kit.FixedLayout;
 using Apitron.PDF.Kit.FixedLayout.ContentElements;
 using Extractors.Contracts.ContentExtractors;
 using Extractors.Contracts.Types;
+using NLog;
 
 namespace Extractors.ContentExtractors {
     /// <summary>
     /// Экстрактор текстов из Pdf файлов
     /// </summary>
     public class PdfExtractor : ExtractorBase {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        
         public PdfExtractor(IContentImageExtractor imageExtractor) : base(imageExtractor) { }
         public override bool IsSupport(string path) {
             return !string.IsNullOrWhiteSpace(path) && path.EndsWith(".pdf", StringComparison.InvariantCultureIgnoreCase);
@@ -61,7 +64,7 @@ namespace Extractors.ContentExtractors {
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine(ex);
+                _logger.Error(ex, $"При обработке {extension} возникло исключение");
             }
 
             result.Content = text.ToString();
@@ -137,7 +140,7 @@ namespace Extractors.ContentExtractors {
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine(ex);
+                _logger.Error(ex, $"При обработке {extension} возникло исключение");
             }
 
             result.Content = text.ToString();

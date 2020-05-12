@@ -9,6 +9,7 @@ using Aspose.Words.Drawing;
 using Aspose.Words.Saving;
 using Extractors.Contracts.ContentExtractors;
 using Extractors.Contracts.Types;
+using NLog;
 using Document = Aspose.Words.Document;
 
 namespace Extractors.ContentExtractors {
@@ -16,6 +17,8 @@ namespace Extractors.ContentExtractors {
     /// Экстрактор текстов из Doc, docx и т.д. файлов
     /// </summary>
     public class DocExtractor : ExtractorBase {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        
         public DocExtractor(IContentImageExtractor imageExtractor) : base(imageExtractor) { }
 
         /// <summary>
@@ -81,7 +84,9 @@ namespace Extractors.ContentExtractors {
                         content.Append(text);
                     }
                 }
-            } catch { }
+            } catch (Exception ex) {
+                _logger.Error(ex, $"При обработке {extension} возникло исключение");
+            }
 
             result.Content = content.ToString();
             return result;
@@ -115,19 +120,21 @@ namespace Extractors.ContentExtractors {
                             }
                         } else {
                             extractTextImage = await _imageExtractor.ExtractTextImage(shape.ImageData.ImageBytes);
-                            
+
                         }
-                        
+
                         if (string.IsNullOrWhiteSpace(extractTextImage)) {
                             var image = shape.ImageData.ToImage();
                             extractTextImage = await _imageExtractor.ExtractTextImage(image.Bytes);
                         }
-                        
+
                         content.Append(extractTextImage);
                         result.HasImageContent = true;
                     }
                 }
-            } catch { }
+            } catch (Exception ex) {
+                _logger.Error(ex, $"При обработке {extension} возникло исключение");
+            }
 
             result.Content = content.ToString();
             return result;

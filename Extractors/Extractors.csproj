@@ -7,6 +7,7 @@
     <ItemGroup>
       <PackageReference Include="Apitron.PDF.Kit" Version="2.0.29" />
       <PackageReference Include="Aspose.Words" Version="20.4.0" />
+      <PackageReference Include="NLog" Version="4.7.0" />
     </ItemGroup>
 
     <ItemGroup>

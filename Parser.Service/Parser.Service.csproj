@@ -11,6 +11,7 @@
       <PackageReference Include="JRPC.Registry.Ninject" Version="3.3.6" />
       <PackageReference Include="JRPC.Service" Version="3.3.6" />
       <PackageReference Include="JRPC.Service.Host.Kestrel" Version="3.3.6" />
+      <PackageReference Include="NLog" Version="4.7.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,6 +24,9 @@
 
     <ItemGroup>
       <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="NLog.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

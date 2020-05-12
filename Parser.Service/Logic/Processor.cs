@@ -11,6 +11,7 @@ using Extractors.Contracts.DocumentExtractors;
 using Extractors.Contracts.Enums;
 using Extractors.Contracts.Types;
 using FileGetter;
+using NLog;
 using Parser.Service.Configs;
 using Parser.Service.Contracts.Logic;
 using Yandex.Xml;
@@ -18,6 +19,8 @@ using Yandex.Xml.Contracts;
 
 namespace Parser.Service.Logic {
     public class Processor : IProcessor {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        
         private readonly List<ExtractorBase> _extractors;
         private readonly List<IDocumentExtractor<DocumentBase>> _documentExtractors;
         private readonly IYandexXmlProvider _yandexXmlProvider;
@@ -111,7 +114,7 @@ namespace Parser.Service.Logic {
                     var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
                     var speed = processed / seconds;
                     Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                    Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
+                    _logger.Info($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
                 } catch (Exception ex) {
                     rpd = new Document {
                         FileUrl = url,
@@ -156,11 +159,10 @@ namespace Parser.Service.Logic {
                 var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
                 var speed = processed / seconds;
                 Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                Console.WriteLine($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
+                _logger.Info($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
                 queue.Enqueue(rpd);
             });
-
-            Console.WriteLine(sw.ElapsedMilliseconds / 1000 / 60);
+            
             return await Task.FromResult(queue);
         }
 
@@ -210,6 +212,8 @@ namespace Parser.Service.Logic {
                 var xmlResponse = await _yandexXmlProvider.Get(pattern.Replace("{domain}", domain), YandexXmlProvider.MAX_XML_RESULT);
                 urls.AddRange(xmlResponse.Items.Select(i => i.Url));
             }
+            
+            _logger.Info($"Найдено {urls.Count} ссылок для домена {domain}");
             
             return await ProcessFilesByUrl(urls);
         }

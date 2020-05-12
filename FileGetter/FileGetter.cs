@@ -2,15 +2,19 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
+using MimeKit;
+using NLog;
 
 namespace FileGetter {
     /// <summary>
     /// Получатор файлов из интернета
     /// </summary>
     public class FileNetworkGetter : IFileGetter {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        
         private const int MAX_TRY_COUNT = 3;
         
         /// <summary>
@@ -31,10 +35,8 @@ namespace FileGetter {
                 var result = new FileData();
                 try {
                     using (var response = (HttpWebResponse) (await request.GetResponseAsync())) {
-                        var disposition = response.Headers["Content-Disposition"];
-                        if (!string.IsNullOrWhiteSpace(disposition)) {
-                            result.FileName = HttpUtility.UrlDecode(new ContentDisposition(disposition).FileName);
-                        } else {
+                        result.FileName = FileNameGetter.Get(response.Headers["Content-Disposition"]);
+                        if (string.IsNullOrEmpty(result.FileName)) {
                             result.FileName = HttpUtility.UrlDecode(uri.Segments.Last());
                         }
 
@@ -52,9 +54,12 @@ namespace FileGetter {
                     if (result.Bytes == null || result.Bytes.Length == 0) {
                         continue;
                     }
-                    
+
                     return result;
-                } catch { }
+                } catch(Exception ex) {
+                    _logger.Error(ex, $"При обработке {address} возникло исключение");
+                    await Task.Delay(5000);
+                }
             }
 
             return null;
