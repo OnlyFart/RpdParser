@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net.Mime;
+using System.Text;
 using System.Web;
 using NLog;
 
@@ -17,6 +18,12 @@ namespace FileGetter {
             
             try {
                 result = new ContentDisposition(disposition).FileName;
+                const string B64 = "?B?";
+                var b64Index = result.IndexOf(B64, StringComparison.InvariantCultureIgnoreCase);
+                if (b64Index > -1) {
+                    result = result.Substring(b64Index + B64.Length, result.Length - b64Index - B64.Length).Trim('\"').Replace("?=", "");
+                    result = Encoding.UTF8.GetString(Convert.FromBase64String(result));
+                }
             } catch {
                 foreach (var item in disposition.Split(";").Select(i => i.Trim())) {
                     const string FILENAME = "filename";
