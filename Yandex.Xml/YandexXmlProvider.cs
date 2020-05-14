@@ -92,8 +92,6 @@ namespace Yandex.Xml {
                     var httpClientHandler = new HttpClientHandler { Proxy = proxy };
                     
                     using (var client = new HttpClient(httpClientHandler)) {
-                    /*    client.DefaultRequestHeaders.TryAddWithoutValidation("x-ip-request", "94.77.112.44");
-                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-force-https", "true");*/
                         return await client.GetStringAsync(url);
                     }
                 } catch (Exception ex) {
