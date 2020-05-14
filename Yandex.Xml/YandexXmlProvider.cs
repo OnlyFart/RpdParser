@@ -17,7 +17,7 @@ namespace Yandex.Xml {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         
         private readonly YandexXmlConfig _config;
-        private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
+        private const string REQUEST_PATTERN = "https://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
         public const int MAX_XML_RESULT = 250;
 
         public YandexXmlProvider(YandexXmlConfig config) {
@@ -92,8 +92,8 @@ namespace Yandex.Xml {
                     var httpClientHandler = new HttpClientHandler { Proxy = proxy };
                     
                     using (var client = new HttpClient(httpClientHandler)) {
-                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-ip-request", "94.77.112.44");
-                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-force-https", "true");
+                    /*    client.DefaultRequestHeaders.TryAddWithoutValidation("x-ip-request", "94.77.112.44");
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("x-force-https", "true");*/
                         return await client.GetStringAsync(url);
                     }
                 } catch (Exception ex) {

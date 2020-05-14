@@ -43,7 +43,8 @@ namespace Parser.Service.IOC {
             Bind<IModulesRegistry>().To<NinjectModulesRegistry>();
             Bind<IJrpcServerHost>().To<KestrelJRpcServerHost>();
             Bind<IConsulClient>().To<ConsulClient>();
-            
+
+
             Bind<FileGetterConfig>().ToConstant(fileGetterConfig);
             Bind<IFileGetter>().To<FileNetworkGetter>().InSingletonScope();
             
