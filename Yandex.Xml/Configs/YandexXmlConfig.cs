@@ -14,6 +14,16 @@ namespace Yandex.Xml.Configs {
         public string Key { get; set; }
         
         /// <summary>
+        /// Максимально кол-во попыток в случае транспортных ошибок
+        /// </summary>
+        public int MaxTryCount { get; set; }
+        
+        /// <summary>
+        /// Задержка в миллисекундах между ошибосными запросами
+        /// </summary>
+        public int ErrorDelayMs { get; set; }
+        
+        /// <summary>
         /// Прокси-сервер через который будут отправлять запросы. Можно не указывать
         /// </summary>
         public string ProxyUrl { get; set; }

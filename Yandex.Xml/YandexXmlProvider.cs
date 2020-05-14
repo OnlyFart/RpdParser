@@ -19,12 +19,7 @@ namespace Yandex.Xml {
         private readonly YandexXmlConfig _config;
         private const string REQUEST_PATTERN = "http://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
         public const int MAX_XML_RESULT = 250;
-        
-        /// <summary>
-        /// Максимальное количетсво попыток обращения к Yandex.Xml
-        /// </summary>
-        private const int MAX_REQUEST_COUNT = 5;
-        
+
         public YandexXmlProvider(YandexXmlConfig config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
@@ -36,6 +31,14 @@ namespace Yandex.Xml {
 
             if (string.IsNullOrWhiteSpace(config.Key)) {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(config.Key));
+            }
+
+            if (config.MaxTryCount <= 0) {
+                throw new ArgumentOutOfRangeException(nameof(config.MaxTryCount));
+            }
+            
+            if (config.ErrorDelayMs < 0) {
+                throw new ArgumentOutOfRangeException(nameof(config.ErrorDelayMs));
             }
 
             _config = config;
@@ -79,7 +82,7 @@ namespace Yandex.Xml {
         }
 
         private async Task<string> GetStringContent(string url) {
-            for (var i = 0; i < MAX_REQUEST_COUNT; i++) {
+            for (var i = 0; i < _config.MaxTryCount; i++) {
                 try {
                     WebProxy proxy = null;
                     if (!string.IsNullOrEmpty(_config.ProxyUrl) && _config.ProxyPort > 0) {
@@ -95,6 +98,7 @@ namespace Yandex.Xml {
                     }
                 } catch (Exception ex) {
                     _logger.Error(ex, $"При обработке {url} возникло исключение");
+                    await Task.Delay(_config.ErrorDelayMs);
                 }
             }
 

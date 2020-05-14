@@ -8,6 +8,7 @@ using Extractors.Contracts.DocumentExtractors;
 using Extractors.Contracts.Types;
 using Extractors.DocumentExtractors;
 using FileGetter;
+using FileGetter.Configs;
 using JRPC.Registry.Ninject;
 using JRPC.Service;
 using JRPC.Service.Host.Kestrel;
@@ -31,6 +32,7 @@ namespace Parser.Service.IOC {
             var xmlConfig = config.GetSection("YandexXml").Get<YandexXmlConfig>();
             var processorConfig = config.GetSection("Processor").Get<ProcessorConfig>();
             var dataExtractorConfig = config.GetSection("DataExtractor").Get<DataExtractorConfig>();
+            var fileGetterConfig = config.GetSection("FileGetter").Get<FileGetterConfig>();
             
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServicePointManager.DefaultConnectionLimit = 1000;
@@ -41,6 +43,8 @@ namespace Parser.Service.IOC {
             Bind<IModulesRegistry>().To<NinjectModulesRegistry>();
             Bind<IJrpcServerHost>().To<KestrelJRpcServerHost>();
             Bind<IConsulClient>().To<ConsulClient>();
+            
+            Bind<FileGetterConfig>().ToConstant(fileGetterConfig);
             Bind<IFileGetter>().To<FileNetworkGetter>().InSingletonScope();
             
             Bind<ProcessorConfig>().ToConstant(processorConfig);

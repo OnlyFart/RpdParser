@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
+using FileGetter.Configs;
 using NLog;
 
 namespace FileGetter {
@@ -11,9 +12,24 @@ namespace FileGetter {
     /// Получатор файлов из интернета
     /// </summary>
     public class FileNetworkGetter : IFileGetter {
+        private readonly FileGetterConfig _config;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         
-        private const int MAX_TRY_COUNT = 3;
+        public FileNetworkGetter(FileGetterConfig config) {
+            if (config == null) {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (config.MaxTryCount <= 0) {
+                throw new ArgumentOutOfRangeException(nameof(config.MaxTryCount));
+            }
+            
+            if (config.ErrorDelayMs < 0) {
+                throw new ArgumentOutOfRangeException(nameof(config.ErrorDelayMs));
+            }
+
+            _config = config;
+        }
         
         /// <summary>
         /// Получение файла по его адресу
@@ -23,7 +39,7 @@ namespace FileGetter {
         public async Task<FileData> GetFile(string address) {
             var uri = new Uri(address);
             
-            for (var i = 0; i < MAX_TRY_COUNT; i++) {
+            for (var i = 0; i < _config.MaxTryCount; i++) {
                 var request = (HttpWebRequest) WebRequest.Create(uri);
                 request.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
                 request.Headers["Accept-Encoding"] = "gzip, deflate, br";
@@ -59,9 +75,12 @@ namespace FileGetter {
                     if (ex.Response is HttpWebResponse errorResponse && errorResponse.StatusCode == HttpStatusCode.NotFound) {
                         throw new Exception($"По адресу {address} получен 404 статус");
                     }
+                    
+                    _logger.Error(ex, $"При обработке {address} возникло исключение");
+                    await Task.Delay(_config.ErrorDelayMs);
                 } catch(Exception ex) {
                     _logger.Error(ex, $"При обработке {address} возникло исключение");
-                    await Task.Delay(5000);
+                    await Task.Delay(_config.ErrorDelayMs);
                 }
             }
 
