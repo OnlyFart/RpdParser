@@ -30,11 +30,13 @@
       <None Update="tessdata\rus.traineddata">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="test_domains.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="GemBox.Pdf" Version="13.0.1100" />
-      <PackageReference Include="JRPC.Client" Version="3.2.97" />
+      <PackageReference Include="JRPC.Client" Version="3.3.6" />
     </ItemGroup>
 
 </Project>

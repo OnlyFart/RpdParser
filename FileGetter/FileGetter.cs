@@ -38,7 +38,7 @@ namespace FileGetter {
                         if (string.IsNullOrEmpty(result.FileName)) {
                             result.FileName = HttpUtility.UrlDecode(uri.Segments.Last());
                         }
-                        
+
                         using (var stream = response.GetResponseStream()) {
                             if (stream != null) {
                                 using (var ms = new MemoryStream()) {
@@ -55,6 +55,10 @@ namespace FileGetter {
                     }
 
                     return result;
+                } catch (WebException ex) {
+                    if (ex.Response is HttpWebResponse errorResponse && errorResponse.StatusCode == HttpStatusCode.NotFound) {
+                        throw new Exception($"По адресу {address} получен 404 статус");
+                    }
                 } catch(Exception ex) {
                     _logger.Error(ex, $"При обработке {address} возникло исключение");
                     await Task.Delay(5000);
