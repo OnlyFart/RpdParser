@@ -42,6 +42,10 @@ namespace Parser.Service.Logic {
             if (string.IsNullOrWhiteSpace(config.BaseDirectory)) {
                 throw new ArgumentNullException(nameof(config.BaseDirectory));
             }
+
+            if (config.XmlPatterns == null || config.XmlPatterns.Length == 0) {
+                throw new ArgumentNullException(nameof(config.XmlPatterns));
+            }
             
             _extractors = extractors;
             _documentExtractors = documentExtractors;
