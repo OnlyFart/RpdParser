@@ -25,6 +25,20 @@ namespace Extractors.ContentExtractors {
         }
         
         /// <summary>
+        /// Получение всех элементов со страницы документа
+        /// Вынес в отдельный метод, т.к. на пустыйх страницах вылетает исключение
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        private static IContentElementsEnumerator GetPageElements(Page page) {
+            try {
+                return page.Elements;
+            } catch {
+                return null;
+            }
+        }
+        
+        /// <summary>
         /// Извлечение текста из документа
         /// </summary>
         /// <param name="bytes">Файл</param>
@@ -39,6 +53,11 @@ namespace Extractors.ContentExtractors {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var doc = new FixedDocument(ms)) {
                         foreach (var page in doc.Pages.Take(2)) {
+                            var elements = GetPageElements(page);
+                            if (elements == null) {
+                                continue;
+                            }
+                            
                             foreach (var element in page.Elements.Where(t => t.ElementType == ElementType.Text || t.ElementType == ElementType.FormXObject)) {
                                 if (element.ElementType == ElementType.FormXObject) {
                                     foreach (var formElement in ((FormContentElement)element).Elements.Where(t => t.ElementType == ElementType.Text)) {
@@ -120,6 +139,11 @@ namespace Extractors.ContentExtractors {
                 using (var ms = new MemoryStream(bytes)) {
                     using (var doc = new FixedDocument(ms)) {
                         foreach (var page in doc.Pages.Take(2)) {
+                            var elements = GetPageElements(page);
+                            if (elements == null) {
+                                continue;
+                            }
+                            
                             foreach (var image in ExtractImages(page).Where(image => image.EncodedData != null && image.EncodedData.Length != 0)) {
                                 var pageText = await _imageExtractor.ExtractTextImage(image.EncodedData);
 
