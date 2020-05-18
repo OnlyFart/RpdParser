@@ -48,6 +48,8 @@ namespace Extractors.DocumentExtractors {
                     foreach (var minusWord in _config.MinusWords) {
                         if (!string.IsNullOrWhiteSpace(minusWord) && content.Contains(minusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.MinusWord = minusWord;
+                            result.Success = true;
+                            
                             return result;
                         }
                     } 
@@ -58,11 +60,14 @@ namespace Extractors.DocumentExtractors {
                         if (!string.IsNullOrWhiteSpace(plusWord) && content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.PlusWord = plusWord;
                             result.DocumentType = DocumentType.Rpd;
+                            result.Success = true;
+                            
                             break;
                         }
                     }    
                 } else {
                     result.DocumentType = DocumentType.Rpd;
+                    result.Success = true;
                 }
             }
             

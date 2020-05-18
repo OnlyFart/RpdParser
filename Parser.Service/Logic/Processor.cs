@@ -181,7 +181,7 @@ namespace Parser.Service.Logic {
                 // Сначала попытка определить тип документа на основании текстового содержания
                 foreach (var documentExtractor in _documentExtractors) {
                     result.DocumentContent = documentExtractor.Extract(documentContent.Content);
-                    if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
+                    if (result.DocumentContent.Success) {
                         return result;
                     }
                 }
@@ -194,7 +194,7 @@ namespace Parser.Service.Logic {
                 foreach (var documentExtractor in _documentExtractors) {
                     result.DocumentContent = documentExtractor.Extract(documentContent.Content);
                     result.HasImageContent = documentContent.HasImageContent;
-                    if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
+                    if (result.DocumentContent.Success) {
                         return result;
                     }
                 }
