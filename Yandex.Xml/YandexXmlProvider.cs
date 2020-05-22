@@ -62,6 +62,10 @@ namespace Yandex.Xml {
                 }
 
                 var xmlResponse = Parse(response);
+                if (!string.IsNullOrWhiteSpace(xmlResponse.ErrorCode) || !string.IsNullOrWhiteSpace(xmlResponse.ErrorMessage)) {
+                    _logger.Warn($"При обращении к YandexXml получена ошибка code: {xmlResponse.ErrorCode} message: {xmlResponse.ErrorMessage}");    
+                }
+                
                 if (xmlResponse.Items.Count == 0) {
                     return result;
                 }
@@ -88,11 +92,11 @@ namespace Yandex.Xml {
                     if (!string.IsNullOrEmpty(_config.ProxyUrl) && _config.ProxyPort > 0) {
                         proxy = new WebProxy(_config.ProxyUrl, _config.ProxyPort);
                     }
-                    
-                    var httpClientHandler = new HttpClientHandler { Proxy = proxy };
-                    
-                    using (var client = new HttpClient(httpClientHandler)) {
-                        return await client.GetStringAsync(url);
+
+                    using (var httpClientHandler = new HttpClientHandler {Proxy = proxy}) {
+                        using (var client = new HttpClient(httpClientHandler)) {
+                            return await client.GetStringAsync(url);
+                        }
                     }
                 } catch (Exception ex) {
                     _logger.Error(ex, $"При обработке {url} возникло исключение");
@@ -109,6 +113,12 @@ namespace Yandex.Xml {
 
             var result = new YandexXmlResponse();
             if (response != null) {
+                var error = response.Element("error");
+                if (error != null) {
+                    result.ErrorCode = error.Attribute("code")?.Value;
+                    result.ErrorMessage = error.Value;
+                }
+                
                 foreach (var node in response.Elements("found")) {
                     if (result.Found == 0 && node.Name == "found" && node.Attribute("priority")?.Value == "all") {
                         result.Found = long.Parse(node.Value);
