@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Extractors.Contracts.ContentExtractors;
@@ -84,57 +84,6 @@ namespace Parser.Service.Logic {
             return result;
         }
 
-        private static async Task<string> SaveFile(string directory, FileData file) {
-            if (!Directory.Exists(directory)) {
-                Directory.CreateDirectory(directory);
-            }
-            
-            var savePath = Path.Combine(directory, file.FileName);
-            
-            // Есть вероятность, что имена файлов будут повторяться
-            // Что бы файлы не перетерались, добавлен такой код
-            for (var i = 0; File.Exists(savePath); i++) {
-                savePath = Path.Combine(directory, $"{i}_{file.FileName}");
-            }
-                
-            await File.WriteAllBytesAsync(savePath, file.Bytes);
-            return savePath;
-        }
-        
-        /// <summary>
-        /// Обработка списка файлов по урлу
-        /// </summary>
-        /// <param name="urls">URL'ы файлов</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
-            var result = new ConcurrentQueue<Document>();
-            var sw = Stopwatch.StartNew();
-            var processed = 0;
-
-            Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
-                Document rpd;
-                try {
-                    rpd = ProcessFileByUrl(url).Result;
-                    var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
-                    var speed = processed / seconds;
-                    Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                    _logger.Info($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
-                } catch (Exception ex) {
-                    _logger.Error(ex, $"При обработке {url} возникло исключение");
-                    
-                    rpd = new Document {
-                        FileUrl = url,
-                        ErrorMessage = ex.Message
-                    };
-                }
-                
-                Interlocked.Increment(ref processed);
-                result.Enqueue(rpd);
-            });
-            
-            return await Task.FromResult(result);
-        }
-        
         /// <summary>
         /// Обработка файла по пути
         /// </summary>
@@ -154,24 +103,54 @@ namespace Parser.Service.Logic {
         /// </summary>
         /// <param name="paths">Список путей к файлам</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Document>> Process(IEnumerable<string> paths) {
+        public async Task<IEnumerable<Document>> ProcessFilesByPath(IEnumerable<string> paths) {
             var queue = new ConcurrentQueue<Document>();
-            var sw = Stopwatch.StartNew();
-            var processed = 0;
-
             Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, path => {
                 var rpd = ProcessFileByPath(path).Result;
-                Interlocked.Increment(ref processed);
-                var seconds = sw.ElapsedMilliseconds * 1.0m / 1000;
-                var speed = processed / seconds;
-                Console.ForegroundColor = rpd.DocumentContent.DocumentType != DocumentType.Unknown ? (rpd.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
-                _logger.Info($"{processed} {(int)(seconds / 60)} {(int)speed} {rpd.HasImageContent} {rpd.FilePath} {rpd.DocumentContent.DocumentType}");
+                Log(rpd);
                 queue.Enqueue(rpd);
             });
             
             return await Task.FromResult(queue);
         }
-
+        
+        /// <summary>
+        /// Обработка списка файлов по урлу
+        /// </summary>
+        /// <param name="urls">URL'ы файлов</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
+            var result = new ConcurrentQueue<Document>();
+            var processed = 0;
+            
+            Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
+                Document rpd;
+                Interlocked.Increment(ref processed);
+                
+                try {
+                    rpd = ProcessFileByUrl(url).Result;
+                    Log(rpd);
+                } catch (Exception ex) {
+                    _logger.Error(ex, $"При обработке {url} возникло исключение");
+                    
+                    rpd = new Document {
+                        FileUrl = url,
+                        ErrorMessage = ex.Message
+                    };
+                }
+                
+                result.Enqueue(rpd);
+            });
+            
+            return await Task.FromResult(result);
+        }
+        
+        /// <summary>
+        /// Обработка файла
+        /// </summary>
+        /// <param name="file">Контент файла в байтах</param>
+        /// <param name="extension">Расширения файла</param>
+        /// <returns></returns>
         private async Task<Document> ProcessFile(byte[] file, string extension) {
             var result = new Document();
 
@@ -222,6 +201,44 @@ namespace Parser.Service.Logic {
             _logger.Info($"Найдено {urls.Count} ссылок для домена {domain}");
             
             return await ProcessFilesByUrl(urls);
+        }
+        
+        /// <summary>
+        /// Логирование
+        /// </summary>
+        /// <param name="document"></param>
+        private void Log(Document document) {
+            Console.ForegroundColor = document.DocumentContent.DocumentType != DocumentType.Unknown ? (document.HasImageContent ? ConsoleColor.Blue : ConsoleColor.Green) : ConsoleColor.Red;
+            Console.OutputEncoding = Encoding.UTF8;
+            
+            _logger.Info($"Извлечение текста из картинок: [{document.HasImageContent}] "
+                         + $"Тип документа: [{document.DocumentContent.DocumentType}] "
+                         + $"Информация о результате разбора: {document.DocumentContent.LogMessage()} "
+                         + $"Путь к файлу на диске: [{document.FilePath}] "
+                         + $"Путь к файлу на сайте: [{document.FileUrl}]");
+        }
+        
+        /// <summary>
+        /// Сохранение файла
+        /// </summary>
+        /// <param name="directory">Директория для сохранения</param>
+        /// <param name="file">Файл</param>
+        /// <returns></returns>
+        private static async Task<string> SaveFile(string directory, FileData file) {
+            if (!Directory.Exists(directory)) {
+                Directory.CreateDirectory(directory);
+            }
+            
+            var savePath = Path.Combine(directory, file.FileName);
+            
+            // Есть вероятность, что имена файлов будут повторяться
+            // Что бы файлы не перетерались, добавлен такой код
+            for (var i = 0; File.Exists(savePath); i++) {
+                savePath = Path.Combine(directory, $"{i}_{file.FileName}");
+            }
+                
+            await File.WriteAllBytesAsync(savePath, file.Bytes);
+            return savePath;
         }
     }
 }

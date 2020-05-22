@@ -30,7 +30,7 @@ namespace Parser.Service.Contracts.Logic {
         /// </summary>
         /// <param name="paths">Список путей к файлам</param>
         /// <returns></returns>
-        Task<IEnumerable<Document>> Process(IEnumerable<string> paths);
+        Task<IEnumerable<Document>> ProcessFilesByPath(IEnumerable<string> paths);
 
         /// <summary>
         /// Обработка списка файлов по домену

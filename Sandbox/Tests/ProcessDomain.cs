@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JRPC.Client;
 using Parser.Service.Contracts.Service;
 
 namespace Sandbox.Tests {

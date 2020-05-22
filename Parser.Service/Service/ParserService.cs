@@ -40,7 +40,7 @@ namespace Parser.Service.Service {
         /// <param name="paths">Путь к файлам</param>
         /// <returns></returns>
         public async Task<IEnumerable<Document>> ProcessFilesByPath(IEnumerable<string> paths) {
-            return await _processor.Process(paths);
+            return await _processor.ProcessFilesByPath(paths);
         }
         
         /// <summary>

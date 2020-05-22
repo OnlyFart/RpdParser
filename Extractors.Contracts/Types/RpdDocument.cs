@@ -16,5 +16,11 @@ namespace Extractors.Contracts.Types {
         /// Найденное минус-слово
         /// </summary>
         public string MinusWord;
+
+        public override string LogMessage() {
+            return $"Плюс-слово: [{PlusWord}] "
+                   + $"Минус-слово: [{MinusWord}] "
+                   + $"Найденные коды: [{string.Join(", ", Codes)}]";
+        }
     }
 }
