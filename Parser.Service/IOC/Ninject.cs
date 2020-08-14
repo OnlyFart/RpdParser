@@ -29,11 +29,8 @@ namespace Parser.Service.IOC {
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
             
-            var xmlConfig = config.GetSection("YandexXml").Get<YandexXmlConfig>();
-            var processorConfig = config.GetSection("Processor").Get<ProcessorConfig>();
             var dataExtractorConfig = config.GetSection("DataExtractor").Get<DataExtractorConfig>();
-            var fileGetterConfig = config.GetSection("FileGetter").Get<FileGetterConfig>();
-            
+
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServicePointManager.DefaultConnectionLimit = 1000;
             
@@ -45,13 +42,10 @@ namespace Parser.Service.IOC {
             Bind<IConsulClient>().To<ConsulClient>();
 
 
-            Bind<FileGetterConfig>().ToConstant(fileGetterConfig);
+            Bind<IConfiguration>().ToConstant(config);
             Bind<IFileGetter>().To<FileNetworkGetter>().InSingletonScope();
-            
-            Bind<ProcessorConfig>().ToConstant(processorConfig);
             Bind<IProcessor>().To<Processor>().InSingletonScope();
             
-            Bind<YandexXmlConfig>().ToConstant(xmlConfig);
             Bind<IYandexXmlProvider>().To<YandexXmlProvider>().InSingletonScope();
 
             Bind<RpdExtractorConfig>().ToConstant(dataExtractorConfig.RpdExtractor);

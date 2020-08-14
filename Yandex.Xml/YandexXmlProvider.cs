@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Yandex.Xml.Configs;
 using Yandex.Xml.Contracts;
@@ -16,29 +17,13 @@ namespace Yandex.Xml {
     public class YandexXmlProvider : IYandexXmlProvider {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         
-        private readonly YandexXmlConfig _config;
+        private readonly IConfiguration _config;
         private const string REQUEST_PATTERN = "https://yandex.com/search/xml?user={0}&key={1}&query={2}&l10n=en&sortby=rlv&filter=none&groupby=attr%3D%22%22.mode%3Dflat.groups-on-page%3D{3}.docs-in-group%3D1&page={4}";
         public const int MAX_XML_RESULT = 250;
 
-        public YandexXmlProvider(YandexXmlConfig config) {
+        public YandexXmlProvider(IConfiguration config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
-            }
-            
-            if (string.IsNullOrWhiteSpace(config.User)) {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(config.User));
-            }
-
-            if (string.IsNullOrWhiteSpace(config.Key)) {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(config.Key));
-            }
-
-            if (config.MaxTryCount <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(config.MaxTryCount));
-            }
-            
-            if (config.ErrorDelayMs < 0) {
-                throw new ArgumentOutOfRangeException(nameof(config.ErrorDelayMs));
             }
 
             _config = config;
@@ -54,8 +39,10 @@ namespace Yandex.Xml {
             var result = new YandexXmlResponse();
             var page = 0;
             var docOnPage = 100;
+            
+            var config = _config.GetSection("FileGetter").Get<YandexXmlConfig>();
             do {
-                var url = string.Format(REQUEST_PATTERN, _config.User, _config.Key, HttpUtility.UrlEncode(query), docOnPage, page++);
+                var url = string.Format(REQUEST_PATTERN, config.User, config.Key, HttpUtility.UrlEncode(query), docOnPage, page++);
                 var response = await GetStringContent(url);
                 if (response == null) {
                     return result;
@@ -86,11 +73,13 @@ namespace Yandex.Xml {
         }
 
         private async Task<string> GetStringContent(string url) {
-            for (var i = 0; i < _config.MaxTryCount; i++) {
+            var config = _config.GetSection("FileGetter").Get<YandexXmlConfig>();
+            
+            for (var i = 0; i < config.MaxTryCount; i++) {
                 try {
                     WebProxy proxy = null;
-                    if (!string.IsNullOrEmpty(_config.ProxyUrl) && _config.ProxyPort > 0) {
-                        proxy = new WebProxy(_config.ProxyUrl, _config.ProxyPort);
+                    if (!string.IsNullOrEmpty(config.ProxyUrl) && config.ProxyPort > 0) {
+                        proxy = new WebProxy(config.ProxyUrl, config.ProxyPort);
                     }
 
                     using (var httpClientHandler = new HttpClientHandler {Proxy = proxy}) {
@@ -100,7 +89,7 @@ namespace Yandex.Xml {
                     }
                 } catch (Exception ex) {
                     _logger.Error(ex, $"При обработке {url} возникло исключение");
-                    await Task.Delay(_config.ErrorDelayMs);
+                    await Task.Delay(config.ErrorDelayMs);
                 }
             }
 

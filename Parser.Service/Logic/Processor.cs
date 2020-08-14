@@ -11,6 +11,7 @@ using Extractors.Contracts.DocumentExtractors;
 using Extractors.Contracts.Enums;
 using Extractors.Contracts.Types;
 using FileGetter;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Parser.Service.Configs;
 using Parser.Service.Contracts.Logic;
@@ -25,26 +26,14 @@ namespace Parser.Service.Logic {
         private readonly List<IDocumentExtractor<DocumentBase>> _documentExtractors;
         private readonly IYandexXmlProvider _yandexXmlProvider;
         private readonly IFileGetter _fileGetter;
-        private readonly ProcessorConfig _config;
+        private readonly IConfiguration _config;
 
         private const string SUCCESS_FOLDER = "Success";
         private const string FAIL_FOLDER = "Fail";
 
-        public Processor(List<ExtractorBase> extractors, List<IDocumentExtractor<DocumentBase>> documentExtractors, IFileGetter fileGetter, IYandexXmlProvider yandexXmlProvider, ProcessorConfig config) {
+        public Processor(List<ExtractorBase> extractors, List<IDocumentExtractor<DocumentBase>> documentExtractors, IFileGetter fileGetter, IYandexXmlProvider yandexXmlProvider, IConfiguration config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
-            }
-            
-            if (config.MaxParallelThreads <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(config.MaxParallelThreads));
-            }
-
-            if (string.IsNullOrWhiteSpace(config.BaseDirectory)) {
-                throw new ArgumentNullException(nameof(config.BaseDirectory));
-            }
-
-            if (config.XmlPatterns == null || config.XmlPatterns.Length == 0) {
-                throw new ArgumentNullException(nameof(config.XmlPatterns));
             }
             
             _extractors = extractors;
@@ -60,6 +49,8 @@ namespace Parser.Service.Logic {
         /// <param name="url">URL файла</param>
         /// <returns></returns>
         public async Task<Document> ProcessFileByUrl(string url) {
+            var config = _config.GetSection("Processor").Get<ProcessorConfig>();
+            
             var file = await _fileGetter.GetFile(url);
             if (file == null) {
                 throw new Exception($"Не удалось загрузить файл {url}");
@@ -75,9 +66,9 @@ namespace Parser.Service.Logic {
             string savePath;
 
             if (result.DocumentContent.DocumentType != DocumentType.Unknown) {
-                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, SUCCESS_FOLDER, file.Host), file);
+                savePath = await SaveFile(Path.Combine(config.BaseDirectory, SUCCESS_FOLDER, file.Host), file);
             } else {
-                savePath = await SaveFile(Path.Combine(_config.BaseDirectory, FAIL_FOLDER, file.Host), file);
+                savePath = await SaveFile(Path.Combine(config.BaseDirectory, FAIL_FOLDER, file.Host), file);
             }
 
             result.FilePath = savePath;
@@ -104,8 +95,10 @@ namespace Parser.Service.Logic {
         /// <param name="paths">Список путей к файлам</param>
         /// <returns></returns>
         public async Task<IEnumerable<Document>> ProcessFilesByPath(IEnumerable<string> paths) {
+            var config = _config.GetSection("Processor").Get<ProcessorConfig>();
+            
             var queue = new ConcurrentQueue<Document>();
-            Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, path => {
+            Parallel.ForEach(paths, new ParallelOptions {MaxDegreeOfParallelism = config.MaxParallelThreads}, path => {
                 var rpd = ProcessFileByPath(path).Result;
                 Log(rpd);
                 queue.Enqueue(rpd);
@@ -120,10 +113,12 @@ namespace Parser.Service.Logic {
         /// <param name="urls">URL'ы файлов</param>
         /// <returns></returns>
         public async Task<IEnumerable<Document>> ProcessFilesByUrl(IEnumerable<string> urls) {
+            var config = _config.GetSection("Processor").Get<ProcessorConfig>();
+            
             var result = new ConcurrentQueue<Document>();
             var processed = 0;
             
-            Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = _config.MaxParallelThreads}, url => {
+            Parallel.ForEach(urls, new ParallelOptions {MaxDegreeOfParallelism = config.MaxParallelThreads}, url => {
                 Document rpd;
                 Interlocked.Increment(ref processed);
                 
@@ -191,9 +186,10 @@ namespace Parser.Service.Logic {
         /// <param name="domain">Домен</param>
         /// <returns></returns>
         public async Task<IEnumerable<Document>> ProcessFilesByDomain(string domain) {
+            var config = _config.GetSection("Processor").Get<ProcessorConfig>();
             var urls = new List<string>();
             
-            foreach (var pattern in _config.XmlPatterns) {
+            foreach (var pattern in config.XmlPatterns) {
                 var xmlResponse = await _yandexXmlProvider.Get(pattern.Replace("{domain}", domain), YandexXmlProvider.MAX_XML_RESULT);
                 urls.AddRange(xmlResponse.Items.Select(i => i.Url));
             }

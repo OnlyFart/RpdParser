@@ -5,29 +5,22 @@ using Extractors.Configs;
 using Extractors.Contracts.DocumentExtractors;
 using Extractors.Contracts.Enums;
 using Extractors.Contracts.Types;
+using Microsoft.Extensions.Configuration;
 
 namespace Extractors.DocumentExtractors {
     public class RpdContentExtractor : IDocumentExtractor<RpdDocument> {
-        private readonly RpdExtractorConfig _config;
-        private readonly Regex _rgx;
+        private readonly IConfiguration _config;
 
         /// <summary>
         /// Экстрактор данных из РПД документа
         /// </summary>
-        /// <param name="rgx">Регулярное выражение для поиска номера направления
-        /// Внимание!!! В качестве результата будет отдана группа 'code'</param>
         /// <param name="config"></param>
-        public RpdContentExtractor(RpdExtractorConfig config) {
+        public RpdContentExtractor(IConfiguration config) {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            if (string.IsNullOrWhiteSpace(config.Regex)) {
-                throw new ArgumentNullException(nameof(config.Regex));
-            }
-            
             _config = config;
-            _rgx = new Regex(config.Regex, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         }
         
         /// <summary>
@@ -36,16 +29,17 @@ namespace Extractors.DocumentExtractors {
         /// <param name="content">РПД документ</param>
         /// <returns></returns>
         public RpdDocument Extract(string content) {
+            var config = _config.GetSection("DataExtractor").Get<DataExtractorConfig>().RpdExtractor;
             var result = new RpdDocument();
             
             if (string.IsNullOrWhiteSpace(content)) {
                 return result;
             }
 
-            result.Codes = _rgx.Matches(content).Select(t => t.Groups["code"].Value.Trim()).ToHashSet();
+            result.Codes = new Regex(config.Regex, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Matches(content).Select(t => t.Groups["code"].Value.Trim()).ToHashSet();
             if (result.Codes.Count > 0) {
-                if (_config.MinusWords.Count > 0) {
-                    foreach (var minusWord in _config.MinusWords) {
+                if (config.MinusWords.Count > 0) {
+                    foreach (var minusWord in config.MinusWords) {
                         if (!string.IsNullOrWhiteSpace(minusWord) && content.Contains(minusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.MinusWord = minusWord;
                             result.Success = true;
@@ -55,8 +49,8 @@ namespace Extractors.DocumentExtractors {
                     } 
                 }
                 
-                if (_config.PlusWords.Count > 0) {
-                    foreach (var plusWord in _config.PlusWords) {
+                if (config.PlusWords.Count > 0) {
+                    foreach (var plusWord in config.PlusWords) {
                         if (!string.IsNullOrWhiteSpace(plusWord) && content.Contains(plusWord, StringComparison.InvariantCultureIgnoreCase)) {
                             result.PlusWord = plusWord;
                             result.DocumentType = DocumentType.Rpd;
