@@ -28,8 +28,6 @@ namespace Parser.Service.IOC {
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
-            
-            var dataExtractorConfig = config.GetSection("DataExtractor").Get<DataExtractorConfig>();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServicePointManager.DefaultConnectionLimit = 1000;
@@ -47,9 +45,6 @@ namespace Parser.Service.IOC {
             Bind<IProcessor>().To<Processor>().InSingletonScope();
             
             Bind<IYandexXmlProvider>().To<YandexXmlProvider>().InSingletonScope();
-
-            Bind<RpdExtractorConfig>().ToConstant(dataExtractorConfig.RpdExtractor);
-
             Bind<IDocumentExtractor<DocumentBase>>().To<RpdContentExtractor>().InSingletonScope();
 
             Bind<IContentImageExtractor>().To<ContentImageExtractor>().InSingletonScope();

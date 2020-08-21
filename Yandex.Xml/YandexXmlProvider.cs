@@ -40,7 +40,7 @@ namespace Yandex.Xml {
             var page = 0;
             var docOnPage = 100;
             
-            var config = _config.GetSection("FileGetter").Get<YandexXmlConfig>();
+            var config = _config.GetSection("YandexXml").Get<YandexXmlConfig>();
             do {
                 var url = string.Format(REQUEST_PATTERN, config.User, config.Key, HttpUtility.UrlEncode(query), docOnPage, page++);
                 var response = await GetStringContent(url);
@@ -73,7 +73,7 @@ namespace Yandex.Xml {
         }
 
         private async Task<string> GetStringContent(string url) {
-            var config = _config.GetSection("FileGetter").Get<YandexXmlConfig>();
+            var config = _config.GetSection("YandexXml").Get<YandexXmlConfig>();
             
             for (var i = 0; i < config.MaxTryCount; i++) {
                 try {
